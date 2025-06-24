@@ -47,7 +47,7 @@ export default function VideoPlayer() {
   }
 
   return (
-    <div className="pt-20 p-4 max-w-6xl">
+    <div className="pt-20 p-4 max-w-5xl">
       {/* Video Player */}
       <div className="aspect-video bg-black rounded-lg overflow-hidden">
         <video
@@ -88,7 +88,7 @@ export default function VideoPlayer() {
 
         {/* Description */}
         {video.description && (
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-100 rounded-lg p-4 shadow-md">
             <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
             <p className="text-gray-700 whitespace-pre-wrap">{video.description}</p>
           </div>

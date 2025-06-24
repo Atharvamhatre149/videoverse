@@ -6,8 +6,7 @@ dayjs.extend(relativeTime);
 
 export default function VideoCard({video,showStatus}) {
     const navigate = useNavigate();
-    console.log("video info",video);
-    
+  
     const handleVideoClick = () => {
         navigate(`/watch/${video._id}`);
     };
@@ -48,9 +47,8 @@ export default function VideoCard({video,showStatus}) {
                     <p className="text-gray-500 font-medium text-sm mb-1">{video.owner?.username}</p>
                     
                     {/* Video Stats */}
-                    <div className="flex justify-between font-medium items-center text-sm text-gray-500">
-                      <span>{video.views} views</span>
-                      <span>{dayjs(video.createdAt).toNow(true)} ago</span>
+                    <div className="font-medium items-center text-sm text-gray-500">
+                      <span>{video.views} views • {dayjs(video.createdAt).toNow(true)} ago</span>
                     </div>
                     
                     {/* Status */}

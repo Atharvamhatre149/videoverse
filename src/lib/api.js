@@ -5,28 +5,25 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  withCredentials: true,
 });
 
-// Add auth interceptor
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      // Optionally redirect to login
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        await apiClient.post('/users/refresh-token');
+        return apiClient(originalRequest); 
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
     }
+
     return Promise.reject(error);
   }
 );
@@ -34,7 +31,7 @@ apiClient.interceptors.response.use(
 // Basic HTTP methods
 export const api = {
   get: (url, params = {}) => apiClient.get(url, { params }),
-  post: (url, data) => apiClient.post(url, data),
+  post: (url, data, config = {}) => apiClient.post(url, data, config),
   put: (url, data) => apiClient.put(url, data),
   patch: (url, data) => apiClient.patch(url, data),
   delete: (url) => apiClient.delete(url),
@@ -90,7 +87,7 @@ export const useFetch = (url, options = {}) => {
   const refetch = () => fetchData();
 
   return { data, loading, error, refetch };
-};
+};  
 
 // Hook for POST/PUT/PATCH/DELETE requests
 export const useMutation = (method = 'post') => {
@@ -102,10 +99,11 @@ export const useMutation = (method = 'post') => {
     try {
       setLoading(true);
       setError(null);
+      console.log(payload);
       
       const response = await api[method](url, payload);
       setData(response.data);
-      
+
       return response.data;
     } catch (err) {
       setError(err);
@@ -221,15 +219,6 @@ export const useInfiniteVideos = (baseUrl = '/videos', pageSize = 12) => {
     loadMore,
     refresh,
   };
-};
-
-// Helper function to set auth token
-export const setAuthToken = (token) => {
-  if (token) {
-    localStorage.setItem('auth_token', token);
-  } else {
-    localStorage.removeItem('auth_token');
-  }
 };
 
 export default api; 

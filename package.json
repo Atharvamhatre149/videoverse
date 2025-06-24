@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.7",
+    "@tabler/icons-react": "^3.34.0",
     "@tailwindcss/vite": "^4.1.8",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
@@ -17,11 +19,11 @@
     "cobe": "^0.6.3",
     "dayjs": "^1.11.13",
     "lucide-react": "^0.511.0",
-    "motion": "^12.16.0",
+    "motion": "^12.18.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1",
-    "tailwind-merge": "^3.3.0",
+    "tailwind-merge": "^3.3.1",
     "videoverse": "file:",
     "zustand": "^5.0.5"
   },

@@ -2,8 +2,11 @@ import ThemeToggle from './../ThemeToggle/ThemeToggle';
 import { GradientText } from '../animate-ui/text/gradient';
 import { Upload } from '../animate-ui/icons/upload';
 import { UserRound } from '../animate-ui/icons/user-round';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-white/93 dark:bg-black-700/90 shadow-md">
       <div className=" px-4 py-3 flex flex-row items-center justify-between gap-4">
@@ -25,7 +28,7 @@ export default function Navbar() {
           <button className="py-2 text-blue-400 rounded-lg dark:text-white transition-transform duration-200 active:scale-90">
             <Upload animateOnHover size="22" />
           </button>
-          <button className="px-2 py-2 bg-blue-400 text-white rounded-lg transition-transform duration-200 active:scale-90">
+          <button className="px-2 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg transition-transform duration-200 active:scale-90" onClick= {() => navigate('/login')}>
             <UserRound animateOnHover size="22" />
           </button>
           <ThemeToggle />
