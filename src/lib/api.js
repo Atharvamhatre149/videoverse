@@ -1,37 +1,62 @@
 import axios from 'axios';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import useUserStore from '../store/useUserStore';
+import { useNavigate } from 'react-router-dom';
 
-// Create axios instance
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
-  timeout: 10000,
+  timeout: 20000,
   withCredentials: true,
 });
+
+const videoUploadConfig = {
+  timeout: 10 * 60 * 1000 
+};
 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const { clearUser } = useUserStore.getState();
+    const navigate = useNavigate();
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== '/users/refresh-token'
+    ) {
       originalRequest._retry = true;
 
       try {
         await apiClient.post('/users/refresh-token');
-        return apiClient(originalRequest); 
+        return apiClient(originalRequest);
       } catch (refreshError) {
+        clearUser();
+        navigate('/login')
         return Promise.reject(refreshError);
       }
+    }
+
+    if (error.response?.status === 401) {
+      navigate('/login')
+      clearUser();
     }
 
     return Promise.reject(error);
   }
 );
 
+
 // Basic HTTP methods
 export const api = {
   get: (url, params = {}) => apiClient.get(url, { params }),
-  post: (url, data, config = {}) => apiClient.post(url, data, config),
+  post: (url, data, config = {}) => {
+    // Apply video upload timeout for video upload endpoint
+    if (url.includes('/videos/publish-video')) {
+      config = { ...config, ...videoUploadConfig };
+    }
+    return apiClient.post(url, data, config);
+  },
   put: (url, data) => apiClient.put(url, data),
   patch: (url, data) => apiClient.patch(url, data),
   delete: (url) => apiClient.delete(url),

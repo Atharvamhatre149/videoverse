@@ -13,6 +13,6 @@ const useUserStore = create(
       storage: createJSONStorage(() => localStorage),
     }
   )
-);
+);  
 
 export default useUserStore; 

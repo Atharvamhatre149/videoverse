@@ -1,21 +1,48 @@
 import ThemeToggle from './../ThemeToggle/ThemeToggle';
 import { GradientText } from '../animate-ui/text/gradient';
 import { Upload } from '../animate-ui/icons/upload';
-import { UserRound } from '../animate-ui/icons/user-round';
 import { useNavigate } from 'react-router-dom';
+import { DropdownMenuButton } from '../DropdownMenu/DropdownMenuButton';
+import useUserStore from '../../store/useUserStore';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { user, clearUser } = useUserStore();
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      clearUser();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const handleUploadClick = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    navigate('/upload');
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-white/93 dark:bg-black-700/90 shadow-md">
-      <div className=" px-4 py-3 flex flex-row items-center justify-between gap-4">
+      <div className="px-4 py-3 flex flex-row items-center justify-between gap-4">
         
         <div className="w-full md:w-auto flex justify-start">
-          <GradientText className="text-3xl md:text-4xl font-bold whitespace-nowrap transition-transform duration-200 active:scale-98" text="Videoverse" />
+          <GradientText 
+            className="text-3xl md:text-4xl font-bold whitespace-nowrap transition-transform duration-200 active:scale-98 cursor-pointer" 
+            text="Videoverse"
+            onClick={() => navigate('/')}
+          />
         </div>
 
-        <div className="w-full md:flex-1md:mx-6 md:max-w-md">
+        <div className="w-full md:flex-1 md:mx-6 md:max-w-md">
           <input
             type="text"
             placeholder="Search videos..."
@@ -25,12 +52,24 @@ export default function Navbar() {
 
         {/* Right Side - Buttons */}
         <div className="w-full md:w-auto flex justify-end items-center gap-4">
-          <button className="py-2 text-blue-400 rounded-lg dark:text-white transition-transform duration-200 active:scale-90">
+          <button 
+            className="py-2 text-blue-400 rounded-lg dark:text-white transition-transform duration-200 active:scale-90"
+            onClick={handleUploadClick}
+          >
             <Upload animateOnHover size="22" />
           </button>
-          <button className="px-2 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg transition-transform duration-200 active:scale-90" onClick= {() => navigate('/login')}>
-            <UserRound animateOnHover size="22" />
-          </button>
+          
+          {user ? (
+            <DropdownMenuButton user={user} onLogout={handleLogout} />
+          ) : (
+            <button 
+              className="px-3 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg transition-transform duration-200 active:scale-90" 
+              onClick={() => navigate('/login')}
+            >
+              Sign In
+            </button>
+          )}
+          
           <ThemeToggle />
         </div>
       </div>

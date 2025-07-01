@@ -4,6 +4,7 @@ import Home from '../containers/Home/Home'
 import VideoPlayer from '../containers/VideoPlayer/VideoPlayer'
 import Register from '@/containers/forms/Register'
 import Login from '@/containers/forms/Login'
+import Upload from '@/containers/forms/Upload'
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login/>
+      },
+      {
+        path: 'upload',
+        element: <Upload/>
       }
     ]
   }

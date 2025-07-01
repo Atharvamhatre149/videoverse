@@ -3,14 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { usePost } from '../../lib/api';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import useUserStore from '../../store/useUserStore';
 import { Upload } from '@/components/animate-ui/icons/upload';
 
 export default function Register() {
     const navigate = useNavigate();
     const { mutate: register, loading, error } = usePost();
-    const setUser = useUserStore(state => state.setUser);
-    
+
     const [formData, setFormData] = useState({
         username: '',
         fullname: '',
@@ -42,8 +40,7 @@ export default function Register() {
 
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
-        console.log(file);
-        
+
         if (file) {
             if (file.size > 5 * 1024 * 1024) { // 5MB limit
                 setFormErrors(prev => ({
@@ -150,8 +147,7 @@ export default function Register() {
             console.log(response);
             
             if(response?.statusCode === 201) {
-                setUser(response.data);
-                navigate("/");
+                navigate("/login");
             }
         } catch (err) {
             console.error('Registration failed:', err);

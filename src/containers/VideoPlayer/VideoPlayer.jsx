@@ -12,7 +12,8 @@ export default function VideoPlayer() {
   const { data: videoData, loading, error } = useFetch(
     videoId ? `/videos/${videoId}` : null
   );
-
+  console.log(videoData);
+  
   // Extract video from the API response structure
   const video = videoData?.data;
 

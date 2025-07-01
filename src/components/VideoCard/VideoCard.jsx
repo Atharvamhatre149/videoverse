@@ -6,7 +6,7 @@ dayjs.extend(relativeTime);
 
 export default function VideoCard({video,showStatus}) {
     const navigate = useNavigate();
-  
+    
     const handleVideoClick = () => {
         navigate(`/watch/${video._id}`);
     };

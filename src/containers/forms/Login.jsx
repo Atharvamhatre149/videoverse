@@ -61,7 +61,7 @@ export default function Login() {
             const response = await login('/users/login', formData);
            
             if(response?.statusCode === 200) {
-                setUser(response.data);
+                setUser(response.data?.user);
                 navigate("/");
             }
 
