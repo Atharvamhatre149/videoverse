@@ -144,7 +144,7 @@ export default function Upload() {
             });
             if (response?.data?._id) {               
                 navigate(`/watch/${response.data.data._id}`);
-            }
+            }use
         } catch (err) {
             console.error('Upload failed:', err);
             setFormErrors(prev => ({

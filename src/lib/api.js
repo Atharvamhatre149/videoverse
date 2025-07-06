@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useUserStore from '../store/useUserStore';
-import { useNavigate } from 'react-router-dom';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
@@ -13,17 +12,22 @@ const videoUploadConfig = {
   timeout: 10 * 60 * 1000 
 };
 
+// Create custom event for auth navigation
+export const AUTH_EVENTS = {
+  UNAUTHORIZED: 'auth:unauthorized',
+  REFRESH_FAILED: 'auth:refresh_failed'
+};
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     const { clearUser } = useUserStore.getState();
-    const navigate = useNavigate();
 
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== '/users/refresh-token'
+      originalRequest.url !== '/users/refresh-token' &&  
+      originalRequest.url !== '/users/login'
     ) {
       originalRequest._retry = true;
 
@@ -32,14 +36,14 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         clearUser();
-        navigate('/login')
+        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
         return Promise.reject(refreshError);
       }
     }
 
     if (error.response?.status === 401) {
-      navigate('/login')
       clearUser();
+      window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
     }
 
     return Promise.reject(error);
@@ -85,7 +89,7 @@ export const useFetch = (url, options = {}) => {
       setError(null);
       
       const response = await api.get(url, {
-        ...options.params,
+        params: options.params,
         cancelToken: cancelTokenRef.current.token,
       });
       
@@ -124,7 +128,6 @@ export const useMutation = (method = 'post') => {
     try {
       setLoading(true);
       setError(null);
-      console.log(payload);
       
       const response = await api[method](url, payload);
       setData(response.data);

@@ -5,6 +5,8 @@ import VideoPlayer from '../containers/VideoPlayer/VideoPlayer'
 import Register from '@/containers/forms/Register'
 import Login from '@/containers/forms/Login'
 import Upload from '@/containers/forms/Upload'
+import Subscriptions from '@/containers/Subscriptions/Subscriptions'
+import You from '@/containers/You/You'
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +32,14 @@ export const router = createBrowserRouter([
       {
         path: 'upload',
         element: <Upload/>
+      },
+      {
+        path: 'subscriptions',
+        element: <Subscriptions/>
+      },
+      {
+        path: 'you',
+        element: <You/>
       }
     ]
   }
