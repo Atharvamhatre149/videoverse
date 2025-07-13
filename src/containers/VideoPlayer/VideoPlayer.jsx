@@ -3,24 +3,35 @@ import { useFetch } from '../../lib/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useState, useEffect } from 'react';
-import useUserStore from '../../store/useUserStore';
-import { useNavigate } from 'react-router-dom';
 import LikeButton from '../../components/LikeButton/LikeButton';
 import SubscribeButton from '../../components/SubscribeButton/SubscribeButton';
+import CommentSection from '../../components/Comments/CommentSection';
 
 dayjs.extend(relativeTime);
 
 export default function VideoPlayer() {
   const { videoId } = useParams();
-
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  
   const { data: videoData, loading, error } = useFetch(
     videoId ? `/videos/${videoId}` : null
   );
-   
-
 
   const video = videoData?.data;
- 
+
+  // Initialize subscriber count when video data loads
+  useEffect(() => {
+    if (video?.subscriberCount) {
+      setSubscriberCount(video.subscriberCount);
+    }
+  }, [video]);
+   
+  const handleSubscriptionChange = (isSubscribed) => {
+    console.log("inside callback :",isSubscribed);
+    
+    setSubscriberCount(prev => isSubscribed ? prev + 1 : prev - 1);
+  };
+
   if (loading) {
     return (
       <div className="pt-16 p-4">
@@ -83,6 +94,7 @@ export default function VideoPlayer() {
             />
             <div>
               <h2 className="font-semibold text-gray-900 dark:text-white">{video.owner?.username}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{subscriberCount} subscribers</p>
             </div>
           </div>
 
@@ -91,7 +103,7 @@ export default function VideoPlayer() {
             {/* Subscribe Button */}
             <SubscribeButton 
               channelId={video.owner?._id}
-              initialSubscriptionStatus={false}
+              onSubscriptionChange={handleSubscriptionChange}
             />
 
             {/* Like Button */}
@@ -113,6 +125,9 @@ export default function VideoPlayer() {
             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{video.description}</p>
           </div>
         )}
+
+        {/* Comments Section */}
+        <CommentSection videoId={videoId} />
       </div>
     </div>
   );

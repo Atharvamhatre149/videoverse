@@ -10,7 +10,7 @@ export default function Home() {
     hasMore, 
     loadMore, 
     refresh 
-  } = useInfiniteVideos('/videos', 10);
+  } = useInfiniteVideos('/videos', 10);  
   
   if (loading) {
     return (

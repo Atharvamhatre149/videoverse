@@ -17,7 +17,7 @@ export default function LikeButton({ videoId, initialLikeCount = 0}) {
     videoId ? `/likes/v/${videoId}` : null
   );
   
-   const userLike = userVideoLikeData?.data;
+   const userLike = userVideoLikeData?.data?.like;
 
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function LikeButton({ videoId, initialLikeCount = 0}) {
   };
 
  return (
-    <button 
+    <div 
       onClick={handleLike}
       className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
     >
@@ -60,6 +60,6 @@ export default function LikeButton({ videoId, initialLikeCount = 0}) {
         className={isLiked ? 'text-red-500 fill-red-500' : 'text-gray-500'}
       /> */}
       <span className="font-medium">{likeCount}</span>
-    </button>
+    </div>
   );
 } 
