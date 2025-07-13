@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { usePatch, useDelete } from '../../lib/api';
+import { usePatch, useDelete, usePost } from '../../lib/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { MoreVertical, Pencil, Trash2, ThumbsUp } from 'lucide-react';
+import { IconButton } from '../../components/animate-ui/buttons/icon';
 
 dayjs.extend(relativeTime);
 
@@ -10,9 +11,12 @@ export default function Comment({ comment, onDelete, onUpdate, isOwner }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [showOptions, setShowOptions] = useState(false);
+  const [isLiked, setIsLiked] = useState(comment.isLiked || false);
+  const [likeCount, setLikeCount] = useState(comment.likeCount || 0);
   const { mutate: updateComment } = usePatch();
   const { mutate: deleteComment } = useDelete();
-
+  const { mutate: toggleLike } = usePost();
+  
   const handleUpdate = async () => {
     try {
       const response = await updateComment(`/comments/c/${comment._id}`, {
@@ -33,6 +37,18 @@ export default function Comment({ comment, onDelete, onUpdate, isOwner }) {
       onDelete(comment._id);
     } catch (error) {
       console.error('Error deleting comment:', error);
+    }
+  };
+
+  const handleLikeClick = async () => {
+    try {
+      const response = await toggleLike(`/likes/toggle/c/${comment._id}`);
+      if (response?.data){
+        setIsLiked(!isLiked);
+        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
     }
   };
 
@@ -112,7 +128,20 @@ export default function Comment({ comment, onDelete, onUpdate, isOwner }) {
             </div>
           </div>
         ) : (
-          <p className="text-sm mt-1">{comment.content}</p>
+          <>
+            <p className="text-sm mt-1">{comment.content}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <IconButton
+                icon={ThumbsUp}
+                active={isLiked}
+                onClick={handleLikeClick}
+                size="sm"
+              />
+              {likeCount > 0 && (
+                <span className="text-xs text-gray-500">{likeCount}</span>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
