@@ -4,10 +4,12 @@ import { Upload } from '../animate-ui/icons/upload';
 import { useNavigate } from 'react-router-dom';
 import { DropdownMenuButton } from '../DropdownMenu/DropdownMenuButton';
 import useUserStore from '../../store/useUserStore';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, clearUser } = useUserStore();
+  const { isScrollingUp, scrollProgress } = useScrollDirection();
 
   const handleLogout = async () => {
     try {
@@ -30,8 +32,16 @@ export default function Navbar() {
     navigate('/upload');
   };
 
+  // Calculate transform value based on scroll progress
+  const transformValue = isScrollingUp 
+    ? `translateY(-${Math.max(0, scrollProgress - 100)}%)`
+    : `translateY(-${Math.min(100, scrollProgress)}%)`;
+
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-white/93 dark:bg-black-700/90 shadow-md">
+    <nav 
+      style={{ transform: transformValue }}
+      className="fixed top-0 left-0 w-full z-50 bg-white/93 dark:bg-black-700/90 shadow-md transition-transform duration-300"
+    >
       <div className="px-4 py-3 flex flex-row items-center justify-between gap-4">
         
         <div className="w-full md:w-auto flex justify-start">

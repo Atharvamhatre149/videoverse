@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 export default function You() {
     const { user } = useUserStore();
     const navigate = useNavigate();
-
+    console.log(user);
+    
     if (!user) {
         return (
             <div className="pt-16 p-4 text-center">
@@ -22,21 +23,21 @@ export default function You() {
     }
 
     return (
-        <div className="pt-16 p-4">
-            <div className="max-w-4xl mx-auto">
+        <div className="pt-20 p-4">
+            <div className="w-full">
                 {/* User Header */}
-                <div className="flex items-center gap-4 mb-8">
+                <div className="flex gap-5 mb-8">
                     <img
                         src={user.avatar}
                         alt={user.username}
-                        className="w-20 h-20 rounded-full object-cover"
+                        className="w-30 h-30 rounded-full object-cover"
                         onError={(e) => {
                             e.target.src = `https://via.placeholder.com/80x80?text=${user.username.charAt(0).toUpperCase()}`;
                         }}
                     />
                     <div>
-                        <h1 className="text-2xl font-bold">{user.username}</h1>
-                        <p className="text-gray-500">{user.fullName}</p>
+                        <h1 className="text-3xl font-bold pt-3">{user.fullname}</h1>
+                        <p className="text-gray-500">{user.username}</p>
                     </div>
                 </div>
 

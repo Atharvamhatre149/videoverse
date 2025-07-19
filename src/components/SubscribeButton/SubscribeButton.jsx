@@ -18,7 +18,6 @@ export default function SubscribeButton({ channelId, onSubscriptionChange }) {
   const userSubscription = userVideoSubscriptionData?.data?.subscribe;
 
   useEffect(() => {
-    console.log(userSubscription);
     setIsSubscribed(userSubscription);
   }, [userSubscription]);
 
@@ -28,8 +27,6 @@ export default function SubscribeButton({ channelId, onSubscriptionChange }) {
         navigate('/login');
         return;
       }
-      console.log("current subscription",isSubscribed);
-      
       const newSubscriptionState = !isSubscribed;
       setIsSubscribed(newSubscriptionState);
       onSubscriptionChange?.(newSubscriptionState);

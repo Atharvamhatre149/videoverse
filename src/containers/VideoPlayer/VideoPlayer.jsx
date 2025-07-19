@@ -1,17 +1,23 @@
 import { useParams } from 'react-router-dom';
-import { useFetch } from '../../lib/api';
+import { useFetch, usePost } from '../../lib/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import LikeButton from '../../components/LikeButton/LikeButton';
 import SubscribeButton from '../../components/SubscribeButton/SubscribeButton';
 import CommentSection from '../../components/Comments/CommentSection';
+import BookmarkButton from '../../components/BookmarkButton/BookmarkButton';
 
 dayjs.extend(relativeTime);
 
 export default function VideoPlayer() {
   const { videoId } = useParams();
   const [subscriberCount, setSubscriberCount] = useState(0);
+  const [views, setViews] = useState(0);
+  const [hasViewedFor30Seconds, setHasViewedFor30Seconds] = useState(false);
+  const videoRef = useRef(null);
+  const lastCheckTimeRef = useRef(0);
+  const { mutate: incrementView } = usePost();
   
   const { data: videoData, loading, error } = useFetch(
     videoId ? `/videos/${videoId}` : null
@@ -19,16 +25,43 @@ export default function VideoPlayer() {
 
   const video = videoData?.data;
 
-  // Initialize subscriber count when video data loads
+  // Initialize subscriber count and views when video data loads
   useEffect(() => {
-    if (video?.subscriberCount) {
-      setSubscriberCount(video.subscriberCount);
+    if (video) {
+      setSubscriberCount(video.subscriberCount || 0);
+      setViews(video.views || 0);
     }
   }, [video]);
+
+  const handleTimeUpdate = useCallback(() => {
+    
+
+    if (hasViewedFor30Seconds) {
+      return;
+    }
+    const currentTime = videoRef.current?.currentTime || 0;
+    
+    if (currentTime - lastCheckTimeRef.current < 1) {
+      return;
+    }
+    
+    lastCheckTimeRef.current = currentTime;
+    
+    if (currentTime >= 30) {
+      setHasViewedFor30Seconds(true);
+      incrementView(`/videos/view/${videoId}`)
+        .then(response => {
+          if (response?.data) {
+            setViews(response?.data?.views);
+          }
+        })
+        .catch(error => {
+          console.error('Error incrementing view:', error);
+        });
+    }
+  }, [videoId, hasViewedFor30Seconds, incrementView]);
    
   const handleSubscriptionChange = (isSubscribed) => {
-    console.log("inside callback :",isSubscribed);
-    
     setSubscriberCount(prev => isSubscribed ? prev + 1 : prev - 1);
   };
 
@@ -67,11 +100,13 @@ export default function VideoPlayer() {
       {/* Video Player */}
       <div className="aspect-video bg-black rounded-lg overflow-hidden">
         <video
+          ref={videoRef}
           className="w-full h-full"
           controls
           autoPlay
           poster={video.thumbnail}
           src={video.videoFile}
+          onTimeUpdate={!hasViewedFor30Seconds ? handleTimeUpdate : undefined}
         >
           Your browser does not support the video tag.
         </video>
@@ -111,6 +146,7 @@ export default function VideoPlayer() {
               videoId={videoId}
               initialLikeCount={video.likes || 0}
             />
+            <BookmarkButton videoId={videoId} />
           </div>
         </div>
 
@@ -119,7 +155,7 @@ export default function VideoPlayer() {
           <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow-md">
             {/* Video Stats */}
             <div className="flex items-center gap-3 text-sm font-semibold mb-4">
-              <span>{video.views} views</span>
+              <span>{views} views</span>
               <span>{dayjs(video.createdAt).fromNow()}</span>
             </div>
             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{video.description}</p>
