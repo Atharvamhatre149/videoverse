@@ -39,17 +39,6 @@ export default function Home() {
   return (
     <div className="pt-16">
       <div className="p-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Videos</h1>
-          <button 
-            onClick={refresh}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            Refresh 
-          </button>
-                  </div>
-
           {/* Videos Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((video) => (

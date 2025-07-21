@@ -132,7 +132,7 @@ export default function BookmarkButton({ videoId }) {
               </div>
             )}
             
-            {!isLoading && Array.isArray(playlists) && playlists.map(playlist => (
+            {!isLoading && Array.isArray(playlists) && playlists.filter(playlist => playlist.name !== "Watch History").map(playlist => (
               <label
                 key={playlist._id}
                 className="flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer group"

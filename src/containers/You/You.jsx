@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useUserStore from '../../store/useUserStore';
 import { useNavigate } from 'react-router-dom';
+import { useFetch } from '../../lib/api';
+import HorizontalSection from '../../components/HorizontalSection/HorizontalSection';
 
 export default function You() {
     const { user } = useUserStore();
     const navigate = useNavigate();
-    console.log(user);
+
+    const { data: likedVideosData } = useFetch(
+        user ? '/likes/videos' : null
+    );
+
+    const { data: playlistsData } = useFetch(
+        user ? '/playlist' : null
+    );
+
+    // Log data to check structure
+    useEffect(() => {
+  
+        if (likedVideosData?.data) {
+            console.log("Liked videos data:", likedVideosData.data[0]);
+        }
+        if (playlistsData?.data) {
+            console.log("Playlist data:", playlistsData.data[0]);
+        }
+    }, [likedVideosData, playlistsData]);
+
+    const likedVideos = likedVideosData?.data || [];
+    const playlists = playlistsData?.data || [];
+
+    // Process videos to ensure they have owner data
+    const processVideos = (videos) => {
+        return videos.map(video => ({
+            ...video,
+            owner: video.owner || video.creater || {}
+        }));
+    };
     
     if (!user) {
         return (
@@ -24,7 +55,7 @@ export default function You() {
 
     return (
         <div className="pt-20 p-4">
-            <div className="w-full">
+            <div className="w-full max-w-7xl mx-auto">
                 {/* User Header */}
                 <div className="flex gap-5 mb-8">
                     <img
@@ -41,25 +72,31 @@ export default function You() {
                     </div>
                 </div>
 
-                {/* Tabs */}
-                <div className="border-b border-gray-200 dark:border-gray-800 mb-6">
-                    <div className="flex gap-4">
-                        <button className="px-4 py-2 border-b-2 border-blue-500 text-blue-500">
-                            Videos
-                        </button>
-                        <button className="px-4 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                            About
-                        </button>
-                    </div>
-                </div>
+                {/* Liked Videos Section */}
+                <HorizontalSection
+                    title="Liked Videos"
+                    videos={processVideos(likedVideos)}
+                    onSeeAll={() => navigate('/likes/videos')}
+                />
 
-                {/* Content */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Video content will go here */}
-                    <div className="text-center text-gray-500">
-                        Your videos will appear here
+                {/* Playlists Sections */}
+                {playlists.map(playlist => (
+                    <HorizontalSection
+                        key={playlist._id}
+                        title={playlist.name}
+                        videos={processVideos(playlist.videos || [])}
+                        onSeeAll={() => navigate(`/playlist/${playlist._id}`)}
+                        playlistId={playlist._id}
+                    />
+                ))}
+
+                {/* Empty State */}
+                {!history.length && !likedVideos.length && !playlists.length && (
+                    <div className="text-center text-gray-500 py-12">
+                        <p className="text-lg">No content yet</p>
+                        <p className="mt-2">Videos you watch, like, or save will appear here</p>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
