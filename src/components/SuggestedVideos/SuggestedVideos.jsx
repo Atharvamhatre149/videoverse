@@ -6,18 +6,23 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
-function SuggestedVideoCard({ video, playlistId }) {
+function SuggestedVideoCard({ video, playlistId, fromLikedVideos }) {
     const navigate = useNavigate();
+
+    const handleClick = () => {
+        let path = `/watch/${video._id}`;
+        if (playlistId) {
+            path += `?playlist=${playlistId}`;
+        } else if (fromLikedVideos) {
+            path += '?from=likes';
+        }
+        navigate(path);
+    };
 
     return (
         <div 
             className="flex gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-lg"
-            onClick={() => {
-                const path = playlistId 
-                    ? `/watch/${video._id}?playlist=${playlistId}`
-                    : `/watch/${video._id}`;
-                navigate(path);
-            }}
+            onClick={handleClick}
         >
             {/* Thumbnail */}
             <div className="relative w-40 flex-shrink-0">
@@ -51,10 +56,16 @@ export default function SuggestedVideos() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const playlistId = searchParams.get('playlist');
+    const fromLikedVideos = searchParams.get('from') === 'likes';
 
     // Fetch playlist videos if playlistId exists
     const { data: playlistData } = useFetch(
         playlistId ? `/playlist/${playlistId}` : null
+    );
+
+    // Fetch liked videos if fromLikedVideos is true
+    const { data: likedVideosData } = useFetch(
+        fromLikedVideos ? '/likes/videos' : null
     );
 
     const { 
@@ -67,8 +78,10 @@ export default function SuggestedVideos() {
         refresh
     } = useInfiniteVideos('/videos', 10);
 
-    // Use playlist videos if available, otherwise use suggested videos
-    const displayVideos = playlistData?.data?.videos || videos;
+    // Use playlist videos or liked videos if available, otherwise use suggested videos
+    const displayVideos = playlistId ? playlistData?.data?.videos 
+        : fromLikedVideos ? likedVideosData?.data 
+        : videos;
 
     if (error) {
         return (
@@ -111,12 +124,13 @@ export default function SuggestedVideos() {
                         key={video._id} 
                         video={video} 
                         playlistId={playlistId}
+                        fromLikedVideos={fromLikedVideos}
                     />
                 ))}
             </div>
             
-            {/* Only show load more for suggested videos, not playlist videos */}
-            {!playlistId && hasMore && (
+            {/* Only show load more for regular suggested videos */}
+            {!playlistId && !fromLikedVideos && hasMore && (
                 <div className="flex justify-center mt-4">
                     <button
                         onClick={loadMore}
@@ -129,7 +143,7 @@ export default function SuggestedVideos() {
             )}
 
             {/* No More Videos Message */}
-            {!playlistId && !hasMore && displayVideos?.length > 0 && (
+            {!playlistId && !fromLikedVideos && !hasMore && displayVideos?.length > 0 && (
                 <div className="text-center mt-4 text-gray-500 text-sm">
                     No more videos to load
                 </div>

@@ -4,13 +4,16 @@ import { useNavigate } from 'react-router-dom';
 
 dayjs.extend(relativeTime);
 
-export default function VideoCard({video, showStatus = true, playlistId}) {
+export default function VideoCard({video, showStatus = false, showAvatar = true, playlistId}) {
     const navigate = useNavigate();
 
     const handleVideoClick = () => {
-        const path = playlistId 
-            ? `/watch/${video._id}?playlist=${playlistId}`
-            : `/watch/${video._id}`;
+        let path = `/watch/${video._id}`;
+        if (playlistId) {
+            path += `?playlist=${playlistId}`;
+        } else if (video.fromLikedVideos) {
+            path += '?from=likes';
+        }
         navigate(path);
     };
 
@@ -35,19 +38,33 @@ export default function VideoCard({video, showStatus = true, playlistId}) {
             </div>
 
             <div className="flex flex-row gap-3 p-2">
-                <div className="flex-shrink-0">
-                    <img 
-                        src={video.owner?.avatar} 
-                        alt={video.owner?.username || 'User avatar'}
-                        className="w-10 h-10 rounded-full object-cover bg-gray-300"
-                        onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/40x40?text=' + (video.owner?.username?.charAt(0).toUpperCase() || 'U');
-                        }}
-                    />
-                </div>    
+                {showAvatar && (
+                    <div className="flex-shrink-0">
+                        <img 
+                            src={video.owner?.avatar} 
+                            alt={video.owner?.username || 'User avatar'}
+                            className="w-10 h-10 rounded-full object-cover bg-gray-300 cursor-pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/channel/${video.owner?._id}`);
+                            }}
+                            onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/40x40?text=' + (video.owner?.username?.charAt(0).toUpperCase() || 'U');
+                            }}
+                        />
+                    </div>
+                )}    
                 <div className="flex-1 mb-2">
                     <h3 className="font-semibold text-lg line-clamp-2">{video.title.length > 35 ? video.title.slice(0, 35) + '...' : video.title}</h3>
-                    <p className="text-gray-500 font-medium text-sm mb-1">{video.owner?.username}</p>
+                    <p 
+                        className="text-gray-500 font-medium text-sm mb-1 cursor-pointer hover:text-gray-700"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/channel/${video.owner?._id}`);
+                        }}
+                    >
+                        {video.owner?.username}
+                    </p>
                     
                     {/* Video Stats */}
                     <div className="font-medium items-center text-sm text-gray-500">

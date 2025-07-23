@@ -42,7 +42,7 @@ export default function SubscribeButton({ channelId, onSubscriptionChange }) {
   return (
     <button 
       onClick={handleSubscribe}
-      className={`relative overflow-hidden group flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+      className={`relative overflow-hidden group flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${
         isSubscribed 
         ? 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white' 
         : 'bg-black hover:bg-gray-900 text-white'

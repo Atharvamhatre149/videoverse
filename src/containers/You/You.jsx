@@ -31,10 +31,11 @@ export default function You() {
     const playlists = playlistsData?.data || [];
 
     // Process videos to ensure they have owner data
-    const processVideos = (videos) => {
+    const processVideos = (videos, isLikedVideos = false) => {
         return videos.map(video => ({
             ...video,
-            owner: video.owner || video.creater || {}
+            owner: video.owner || video.creater || {},
+            fromLikedVideos: isLikedVideos
         }));
     };
     
@@ -75,20 +76,33 @@ export default function You() {
                 {/* Liked Videos Section */}
                 <HorizontalSection
                     title="Liked Videos"
-                    videos={processVideos(likedVideos)}
+                    videos={processVideos(likedVideos, true)}
                     onSeeAll={() => navigate('/likes/videos')}
                 />
 
-                {/* Playlists Sections */}
-                {playlists.map(playlist => (
+                {/* Watch History */}
+                {playlists.find(p => p.name === "Watch History") && (
                     <HorizontalSection
-                        key={playlist._id}
-                        title={playlist.name}
-                        videos={processVideos(playlist.videos || [])}
-                        onSeeAll={() => navigate(`/playlist/${playlist._id}`)}
-                        playlistId={playlist._id}
+                        key="watch-history"
+                        title="Watch History"
+                        videos={processVideos(playlists.find(p => p.name === "Watch History").videos || [])}
+                        onSeeAll={() => navigate(`/playlist/${playlists.find(p => p.name === "Watch History")._id}`)}
+                        playlistId={playlists.find(p => p.name === "Watch History")._id}
                     />
-                ))}
+                )}
+
+                {/* Other Playlists Sections */}
+                {playlists
+                    .filter(playlist => playlist.name !== "Watch History")
+                    .map(playlist => (
+                        <HorizontalSection
+                            key={playlist._id}
+                            title={playlist.name}
+                            videos={processVideos(playlist.videos || [])}
+                            onSeeAll={() => navigate(`/playlist/${playlist._id}`)}
+                            playlistId={playlist._id}
+                        />
+                    ))}
 
                 {/* Empty State */}
                 {!history.length && !likedVideos.length && !playlists.length && (
