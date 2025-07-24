@@ -1,0 +1,14 @@
+.scrollContainer {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.scrollContainer::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+} 
