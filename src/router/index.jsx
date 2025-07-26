@@ -7,6 +7,8 @@ import Register from '../containers/forms/Register';
 import Upload from '../containers/forms/Upload';
 import You from '../containers/You/You';
 import Channel from '../containers/Channel/Channel';
+import Profile from '../containers/Profile/Profile';
+import Subscriptions from '@/containers/Subscriptions/Subscriptions';
 
 export const router = createBrowserRouter([
     {
@@ -40,6 +42,14 @@ export const router = createBrowserRouter([
             {
                 path: 'channel/:channelId',
                 element: <Channel />
+            },
+            {
+                path: 'subscriptions',
+                element: <Subscriptions/>
+            },
+            {
+                path: 'profile',
+                element: <Profile />
             }
         ]
     }
