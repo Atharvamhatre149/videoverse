@@ -32,6 +32,7 @@ export default function You() {
 
     // Process videos to ensure they have owner data
     const processVideos = (videos, isLikedVideos = false) => {
+     
         return videos.map(video => ({
             ...video,
             owner: video.owner || video.creater || {},
@@ -60,7 +61,7 @@ export default function You() {
                 {/* User Header */}
                 <div className="flex gap-5 mb-8">
                     <img
-                        src={user.avatar}
+                        src={user.avatar?.url}
                         alt={user.username}
                         className="w-30 h-30 rounded-full object-cover"
                         onError={(e) => {

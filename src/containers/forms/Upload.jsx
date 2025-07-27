@@ -7,7 +7,7 @@ import { Upload as UploadIcon } from '@/components/animate-ui/icons/upload';
 
 export default function Upload() {
     const navigate = useNavigate();
-    const { mutate: uploadVideo, loading, error } = usePost();
+    const { mutate: uploadVideo, loading } = usePost();
 
     const [formData, setFormData] = useState({
         title: '',
@@ -142,9 +142,9 @@ export default function Upload() {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            if (response?.data?._id) {               
-                navigate(`/watch/${response.data.data._id}`);
-            }use
+            if (response?.data?._id) {              
+                navigate(`/watch/${response.data._id}`);
+            }
         } catch (err) {
             console.error('Upload failed:', err);
             setFormErrors(prev => ({

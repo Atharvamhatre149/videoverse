@@ -43,7 +43,7 @@ export const DropdownMenuButton = ({ user, onLogout }) => {
           >
             {user?.avatar ? (
               <img 
-                src={user.avatar} 
+                src={user?.avatar?.url} 
                 alt={user.username} 
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -58,7 +58,7 @@ export const DropdownMenuButton = ({ user, onLogout }) => {
           <div className="flex items-center gap-3 mb-2">
             {user?.avatar ? (
               <img 
-                src={user.avatar} 
+                src={user?.avatar?.url} 
                 alt={user.username} 
                 className="w-10 h-10 rounded-full object-cover"
               />

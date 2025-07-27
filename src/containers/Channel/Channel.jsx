@@ -41,9 +41,9 @@ export default function Channel() {
         <div className="pt-20 px-20">
             {/* Channel Cover Image */}
             <div className="w-full rounded-2xl overflow-hidden aspect-[16/3] max-h-[400px] bg-gray-200 dark:bg-gray-700">
-                {channel.coverImage ? (
+                {channel?.coverImage ? (
                     <img
-                        src={channel.coverImage}
+                        src={channel?.coverImage?.url}
                         alt={`${channel.username}'s cover`}
                         className="w-full h-full object-cover rounded-2xl"
                         onError={(e) => {
@@ -59,7 +59,7 @@ export default function Channel() {
                 <div className="max-w-7xl mx-auto py-6">
                     <div className="flex flex-col md:flex-row md:items-start gap-6">
                         <img
-                            src={channel.avatar}
+                            src={channel?.avatar?.url}
                             alt={channel.username}
                             className="w-24 h-24 md:w-40 md:h-40 rounded-full object-cover"
                             onError={(e) => {
