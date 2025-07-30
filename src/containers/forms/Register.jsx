@@ -162,13 +162,13 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl w-full space-y-8 p-8 shadow-input rounded-2xl">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 md:pt-21 dark:bg-black">
+            <div className="max-w-2xl w-full space-y-5 p-7 border-1 shadow-lg dark:bg-black-800  border-gray-300 dark:border-0 rounded-2xl">
                 <div>
-                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
+                    <h2 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white">
                         Create your account
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
+                    <p className="mt-1.5 text-center text-sm text-gray-600 dark:text-gray-300">
                         Already have an account?{' '}
                         <Link
                             to="/login"
@@ -179,7 +179,7 @@ export default function Register() {
                     </p>
                 </div>
                 
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                <form className="mt-1 space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-7">
                         {/* Cover Image Upload */}
                         <div className="flex flex-col items-center space-y-4">
@@ -191,7 +191,7 @@ export default function Register() {
                                         className="w-full h-32 object-cover"
                                     />
                                 ) : (
-                                    <div className="w-full h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                    <div className="w-full h-32 bg-gray-200 dark:bg-black-600 flex items-center justify-center">
                                         <Upload size={32} className="text-gray-400" />
                                         <span className="ml-2 text-gray-400">Upload Cover Image (Optional)</span>
                                     </div>
@@ -226,7 +226,7 @@ export default function Register() {
                                         className="w-24 h-24 rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                    <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-black-600 flex items-center justify-center">
                                         <Upload size={32} className="text-gray-400" />
                                     </div>
                                 )}

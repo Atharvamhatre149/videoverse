@@ -69,7 +69,7 @@ export default function VideoCard({
     return (
         <div 
             key={video._id} 
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer relative"
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer relative dark:bg-black-700"
             onClick={handleVideoClick}
         >
             <div className="relative aspect-video bg-gray-200">
@@ -86,7 +86,7 @@ export default function VideoCard({
                 </div>
             </div>
 
-            <div className="flex flex-row gap-3 p-2">
+            <div className="flex flex-row gap-3 p-2 dark:bg-black-700">
                 {showAvatar && (
                     <div className="flex-shrink-0">
                         <img 
@@ -127,7 +127,7 @@ export default function VideoCard({
                         )}
                     </div>
                     <p 
-                        className="text-gray-500 font-medium text-sm mb-1 cursor-pointer hover:text-gray-700"
+                        className="text-gray-500 font-medium text-sm mb-1 cursor-pointer dark:text-gray-400 dark:hover:text-gray-200  hover:text-gray-700"
                         onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/channel/${video.owner?._id}`);
@@ -137,7 +137,7 @@ export default function VideoCard({
                     </p>
                     
                     {/* Video Stats */}
-                    <div className="font-medium items-center text-sm text-gray-500">
+                    <div className="font-medium items-center text-sm text-gray-500 dark:text-gray-400">
                         <span>{video.views} views • {dayjs(video.createdAt).toNow(true)} ago</span>
                     </div>
                     

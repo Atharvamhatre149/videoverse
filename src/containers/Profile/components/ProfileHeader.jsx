@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import { LoaderOne } from "@/components/ui/loader";
 
-export default function ProfileHeader({ user, setUser, updateProfile }) {
+export default function ProfileHeader({ user, userInfo, setUser, updateProfile, totalVideos }) {
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [isUploadingCover, setIsUploadingCover] = useState(false);
-
+    const [currentUserInfo,setCurrentUserInfo] = useState(userInfo);
     const handleImageUpload = async (type, e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -27,7 +27,15 @@ export default function ProfileHeader({ user, setUser, updateProfile }) {
             );
             
             if (response?.data) {
-                setUser(response?.data);
+                if (type === 'avatar') {
+                    setUser({
+                        ...user,
+                        avatar: response.data.avatar
+                    });
+                }
+                else{
+                    setCurrentUserInfo(response.data)
+                }
             }
         } catch (error) {
             console.error('Error uploading image:', error);
@@ -41,9 +49,9 @@ export default function ProfileHeader({ user, setUser, updateProfile }) {
         <>
             {/* Cover Image Section */}
             <div className="w-full rounded-2xl overflow-hidden aspect-[16/3] max-h-[400px] bg-gray-200 dark:bg-gray-700 relative group">
-                {user?.coverImage ? (
+                {currentUserInfo?.coverImage ? (
                     <img
-                        src={user?.coverImage?.url}
+                        src={currentUserInfo?.coverImage?.url}
                         alt="Cover"
                         className="w-full h-full object-cover rounded-2xl"
                     />
@@ -103,7 +111,7 @@ export default function ProfileHeader({ user, setUser, updateProfile }) {
                                         <h1 className="text-2xl md:text-4xl font-bold mb-1">{user.fullname}</h1>
                                     </div>
                                     <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-                                        @{user.username} • {user.subscribersCount || 0} subscribers • {user.totalVideos} videos
+                                        @{user.username} • {currentUserInfo?.subscribersCount || 0} subscribers • {totalVideos} videos
                                     </p>
                                 </div>
                             </div>

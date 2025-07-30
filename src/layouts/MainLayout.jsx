@@ -5,7 +5,7 @@ import AuthNavigator from '../components/AuthNavigator'
 
 export default function MainLayout() {
   return (
-    <div className="min-h-screen bg-white dark:bg-black-700 text-gray-900 dark:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-200">
       <AuthNavigator />
       <Navbar />
       <SideNav />

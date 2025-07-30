@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePost } from '../../lib/api';
 import { Input } from '@/components/ui/input';
@@ -83,6 +83,11 @@ export default function Upload() {
                 // Create video preview URL
                 const videoURL = URL.createObjectURL(file);
                 setVideoPreview(videoURL);
+
+                // Clean up the old video URL if it exists
+                if (videoPreview) {
+                    URL.revokeObjectURL(videoPreview);
+                }
             }
 
             setFormData(prev => ({
@@ -99,6 +104,15 @@ export default function Upload() {
             }
         }
     };
+
+    // Cleanup function for video preview URL
+    useEffect(() => {
+        return () => {
+            if (videoPreview) {
+                URL.revokeObjectURL(videoPreview);
+            }
+        };
+    }, []);
 
     const validateForm = () => {
         const errors = {};
@@ -163,37 +177,71 @@ export default function Upload() {
                     {/* Video Upload */}
                     <div className="space-y-4">
                         <Label htmlFor="videoFile">Video</Label>
-                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        <div className="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-black-700">
                             {videoPreview ? (
-                                <video
-                                    src={videoPreview}
-                                    controls
-                                    className="w-full h-full object-contain"
-                                />
+                                <div className="aspect-video">
+                                    <video
+                                        src={videoPreview}
+                                        controls
+                                        controlsList="nodownload"
+                                        className="w-full h-full object-contain bg-black"
+                                        onLoadedMetadata={(e) => {
+                                            // Optional: You can get video duration here if needed
+                                            console.log("Video duration:", e.target.duration);
+                                        }}
+                                    >
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setVideoPreview(null);
+                                            setFormData(prev => ({ ...prev, videoFile: null }));
+                                        }}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 focus:outline-none"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
                             ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                <label 
+                                    htmlFor="videoFile" 
+                                    className="aspect-video w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-black-600 transition-colors"
+                                >
                                     <UploadIcon size={48} className="text-gray-400 mb-2" />
                                     <span className="text-gray-500">Upload Video (Max 100MB)</span>
-                                </div>
+                                    <span className="text-sm text-gray-400 mt-1">MP4, WebM, or Ogg</span>
+                                </label>
                             )}
                             <input
                                 type="file"
                                 id="videoFile"
                                 name="videoFile"
-                                accept="video/*"
+                                accept="video/mp4,video/webm,video/ogg"
                                 onChange={(e) => handleFileChange(e, 'videoFile')}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                className={`${videoPreview ? 'hidden' : 'absolute inset-0 opacity-0 cursor-pointer'}`}
                             />
                         </div>
                         {formErrors.videoFile && (
                             <p className="text-sm text-red-600">{formErrors.videoFile}</p>
+                        )}
+                        {videoPreview && (
+                            <button
+                                type="button"
+                                onClick={() => document.getElementById('videoFile').click()}
+                                className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                                Change video
+                            </button>
                         )}
                     </div>
 
                     {/* Thumbnail Upload */}
                     <div className="space-y-4">
                         <Label htmlFor="thumbnail">Thumbnail</Label>
-                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-black-700">
                             {thumbnailPreview ? (
                                 <img
                                     src={thumbnailPreview}
@@ -246,7 +294,7 @@ export default function Upload() {
                             onChange={handleInputChange}
                             placeholder="Enter video description"
                             rows={4}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full px-4 py-2 rounded-lg border dark:border-none  border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-black-600 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                         {formErrors.description && (
                             <p className="text-sm text-red-600">{formErrors.description}</p>

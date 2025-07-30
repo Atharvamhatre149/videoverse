@@ -40,7 +40,7 @@ export default function Navbar() {
   return (
     <nav 
       style={{ transform: transformValue }}
-      className="fixed top-0 left-0 w-full z-50 bg-white/93 dark:bg-black-700/90 shadow-md transition-transform duration-300"
+      className="fixed top-0 left-0 w-full z-50 dark:border-b-1 dark:border-black-600 bg-white/93 dark:bg-black/90 shadow-md transition-transform duration-300"
     >
       <div className="px-4 py-3 flex flex-row items-center justify-between gap-4">
         
@@ -56,14 +56,14 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Search videos..."
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-black-600 bg-gray-100 dark:bg-black-600 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
         {/* Right Side - Buttons */}
         <div className="w-full md:w-auto flex justify-end items-center gap-4">
           <button 
-            className="py-2 text-blue-400 rounded-lg dark:text-white transition-transform duration-200 active:scale-90"
+            className="py-2 text-blue-400 rounded-lg font-bold transition-transform duration-200 active:scale-90"
             onClick={handleUploadClick}
           >
             <Upload animateOnHover size="22" />
@@ -73,7 +73,7 @@ export default function Navbar() {
             <DropdownMenuButton user={user} onLogout={handleLogout} />
           ) : (
             <button 
-              className="px-3 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg transition-transform duration-200 active:scale-90" 
+              className="px-3 p-1.5 bg-blue-400 hover:bg-blue-500 text-white rounded-3xl transition-transform duration-200 active:scale-90" 
               onClick={() => navigate('/login')}
             >
               Sign In

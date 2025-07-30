@@ -35,7 +35,7 @@ export const DropdownMenuButton = ({ user, onLogout }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>   
-        <button className="rounded-full bg-blue-400 hover:bg-blue-500 flex items-center justify-center">
+        <button className="rounded-full outline-none bg-blue-400 hover:bg-blue-500 flex items-center justify-center">
           <motion.div    
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -53,7 +53,7 @@ export const DropdownMenuButton = ({ user, onLogout }) => {
           </motion.div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-54 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 m-3">
+      <DropdownMenuContent className="w-57 bg-white dark:bg-black-700 dark:border-1 dark:border-black-700 rounded-lg shadow-lg border border-gray-200 m-2">
         <DropdownMenuLabel >
           <div className="flex items-center gap-3 mb-2">
             {user?.avatar ? (
@@ -76,9 +76,9 @@ export const DropdownMenuButton = ({ user, onLogout }) => {
             {user?.email}
           </p>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator className="h-[1px] bg-gray-200 dark:bg-gray-700 my-1" />
+        <DropdownMenuSeparator className="h-[1px] bg-gray-200 dark:bg-black-500 my-1" />
         <DropdownMenuGroup className="px-1 py-1">
-          <DropdownMenuItem onClick={() => navigate('/profile')} className="px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 outline-none">
+          <DropdownMenuItem onClick={() => navigate('/profile')} className="px-2 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-black-600 focus:bg-gray-100 dark:text-white  dark:focus:bg-black-600 outline-none">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>

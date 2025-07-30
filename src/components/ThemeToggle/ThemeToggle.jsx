@@ -6,7 +6,7 @@ export default function ThemeToggle(){
   return(
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 transition-transform duration-200 active:scale-90"
+      className="p-1.5 rounded-lg bg-gray-200 dark:bg-black-600 transition-transform duration-200 active:scale-90"
       aria-label="Toggle theme"
     >
       {theme === "light" ? '☀️' : '🌙'}

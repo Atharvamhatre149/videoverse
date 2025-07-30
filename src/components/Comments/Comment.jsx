@@ -55,7 +55,7 @@ export default function Comment({ comment, onDelete, onUpdate, isOwner }) {
   return (
     <div className="flex gap-3 group">
       <img
-        src={comment.owner?.avatar}
+        src={comment.owner?.avatar?.url}
         alt={comment.owner?.username}
         className="w-10 h-10 rounded-full object-cover"
         onError={(e) => {

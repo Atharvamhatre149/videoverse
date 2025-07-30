@@ -124,7 +124,7 @@ export default function VideoPlayer() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <img 
-                  src={video.owner?.avatar} 
+                  src={video.owner?.avatar?.url} 
                   alt={video.owner?.username || 'Channel avatar'}
                   className="w-12 h-12 rounded-full object-cover bg-gray-300"
                   onError={(e) => {

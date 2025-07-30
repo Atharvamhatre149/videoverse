@@ -10,6 +10,10 @@ export default function Profile() {
     const { user, setUser } = useUserStore();
     const [videosList, setVideosList] = useState([]);
 
+    const { data: userInfoData, loading: userInfoLoading } = useFetch(
+        user ? `/users/${user._id}` : null
+    );
+
     const { data: userVideosData, loading: videosLoading } = useFetch(
         user ? `/videos?userId=${user._id}&limit=20&all=1` : null
     );
@@ -27,13 +31,27 @@ export default function Profile() {
     const { mutate: updateProfile } = usePatch();
 
     if (!user) return null;
+    console.log(userInfoData);
+    
+    const userInfo = userInfoData?.data;
+    const totalVideos = videosList.length;
+
+    if (userInfoLoading) {
+        return (
+            <div className="pt-16 flex justify-center items-center min-h-[50vh]">
+                <div className="text-lg">Loading profile...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="pt-20 px-20">
             <ProfileHeader 
-                user={user} 
+                user={user}
+                userInfo={userInfo} 
                 setUser={setUser} 
                 updateProfile={updateProfile}
+                totalVideos={totalVideos}
             />
 
             {/* Profile Navigation */}
@@ -81,8 +99,10 @@ export default function Profile() {
                 ) : (
                     <AboutSection 
                         user={user}
+                        userInfo={userInfo}
                         setUser={setUser}
                         updateProfile={updateProfile}
+                        totalVideos={totalVideos}
                     />
                 )}
             </div>

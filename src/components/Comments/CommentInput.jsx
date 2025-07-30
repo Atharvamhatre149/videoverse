@@ -49,7 +49,7 @@ export default function CommentInput({ videoId, onCommentAdded }) {
     <div className="flex flex-row gap-2">
       <div className="flex items-start gap-3">
             <img 
-              src={user?.avatar} 
+              src={user?.avatar?.url} 
               alt={user?.username || 'Channel avatar'}
               className="w-12 h-12 rounded-full object-cover bg-gray-300"
               onError={(e) => {
