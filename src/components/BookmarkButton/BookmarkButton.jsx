@@ -96,14 +96,14 @@ export default function BookmarkButton({ videoId }) {
         }
       />
       <PopoverContent
-        className="w-72 p-4 bg-white border-1 border-gray-300"
+        className="w-72 p-4 bg-white border-1 dark:border-0 border-gray-300 dark:bg-black-700"
         side="bottom"
         align="end"
         sideOffset={15}
       >
         <div className="space-y-4">
           <div>
-            <h3 className="font-semibold mb-2">Save to playlist</h3>
+            <h3 className="font-semibold mb-2 dark:text-white">Save to playlist</h3>
             
             {/* Create new playlist */}
             <form onSubmit={handleCreatePlaylist} className="flex gap-2">
@@ -112,7 +112,7 @@ export default function BookmarkButton({ videoId }) {
                 value={newPlaylistName}
                 onChange={(e) => setNewPlaylistName(e.target.value)}
                 placeholder="Create new playlist"
-                className="flex-1 px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-1.5 rounded border border-gray-300 dark:border-black-600 dark:text-white bg-gray-50 dark:bg-black-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="submit"
@@ -135,7 +135,7 @@ export default function BookmarkButton({ videoId }) {
             {!isLoading && Array.isArray(playlists) && playlists.filter(playlist => playlist.name !== "Watch History").map(playlist => (
               <label
                 key={playlist._id}
-                className="flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer group"
+                className="flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-black-600 dark:text-white rounded-md cursor-pointer group"
               >
                 <div className="flex items-center gap-2">
                   <input

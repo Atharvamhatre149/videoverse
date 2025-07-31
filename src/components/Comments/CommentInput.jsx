@@ -63,7 +63,7 @@ export default function CommentInput({ videoId, onCommentAdded }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Add a comment..."
-        className="w-full p-2 dark:bg-gray-800 border-b border-black dark:border-gray-700 focus:outline-none focus:border-b-2 resize-none overflow-hidden min-h-[24px]"
+        className="w-full p-2 dark:bg-black-900 border-b border-black dark:border-gray-700 focus:outline-none focus:border-b-2 resize-none overflow-hidden min-h-[24px]"
         rows={1}
       />
       {content.trim() && (

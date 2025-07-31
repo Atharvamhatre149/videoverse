@@ -153,7 +153,7 @@ export default function VideoPlayer() {
 
             {/* Description */}
             {video.description && (
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 shadow-md">
+              <div className="bg-gray-100 dark:bg-black-700 rounded-lg p-4 shadow-md">
                 {/* Video Stats */}
                 <div className="flex items-center gap-3 text-sm font-semibold mb-4">
                   <span>{views} views</span>

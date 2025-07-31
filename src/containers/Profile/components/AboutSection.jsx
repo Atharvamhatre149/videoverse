@@ -53,7 +53,7 @@ export default function AboutSection({ userInfo, updateProfile, totalVideos }) {
 
     return (
         <div className="max-w-3xl">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-black-800 rounded-xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">About</h2>
                     {!isEditingAbout ? (
