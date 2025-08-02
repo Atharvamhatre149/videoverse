@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useFetch } from '../../lib/api';
-import VideoCard from '../../components/VideoCard/VideoCard';
-import SubscribeButton from '../../components/SubscribeButton/SubscribeButton';
 import ProfileHeader from '../Profile/components/ProfileHeader';
 import AboutSection from '../Profile/components/AboutSection';
 import VideosSection from '../Profile/components/VideosSection';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function Channel() {
     const { channelId } = useParams();
@@ -62,7 +61,10 @@ export default function Channel() {
                         >
                             Videos
                             {activeTab === 'videos' && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400" />
+                                <motion.div 
+                                    className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"
+                                    layoutId="activeTab"
+                                />
                             )}
                         </button>
                         <button
@@ -75,7 +77,10 @@ export default function Channel() {
                         >
                             About
                             {activeTab === 'about' && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400" />
+                                <motion.div 
+                                    className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"
+                                    layoutId="activeTab"
+                                />
                             )}
                         </button>
                     </div>
@@ -83,28 +88,30 @@ export default function Channel() {
             </div>
 
             {/* Channel Content */}
-            <div className="max-w-7xl mx-auto py-8">
-                {activeTab === 'videos' ? (
-                    <VideosSection 
-                        videos={videos}
-                        loading={videosLoading}
-                        showAvatar={false}
-                    />
-                ) : (
-                    <AboutSection 
-                        userInfo={channel}
-                        totalVideos={totalVideos}
-                        canEdit={false}
-                    />
-                )}
-            </div>
-
-            {/* Subscribe Button - Floating */}
-            <div className="fixed bottom-6 right-6">
-                <SubscribeButton 
-                    channelId={channelId}
-                    initialSubscriberCount={channel.subscribersCount || 0}
-                />
+            <div className="max-w-7xl mx-auto py-8 relative">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {activeTab === 'videos' ? (
+                            <VideosSection 
+                                videos={videos}
+                                loading={videosLoading}
+                                canEdit={false}
+                            />
+                        ) : (
+                            <AboutSection 
+                                userInfo={channel}
+                                totalVideos={totalVideos}
+                                canEdit={false}
+                            />
+                        )}
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );

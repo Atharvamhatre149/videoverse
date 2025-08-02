@@ -4,6 +4,7 @@ import useUserStore from '../../store/useUserStore';
 import ProfileHeader from './components/ProfileHeader';
 import AboutSection from './components/AboutSection';
 import VideosSection from './components/VideosSection';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function Profile() {
     const [activeTab, setActiveTab] = useState('videos');
@@ -68,7 +69,10 @@ export default function Profile() {
                         >
                             Videos
                             {activeTab === 'videos' && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400" />
+                                <motion.div 
+                                    className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"
+                                    layoutId="activeTab"
+                                />
                             )}
                         </button>
                         <button
@@ -81,7 +85,10 @@ export default function Profile() {
                         >
                             About
                             {activeTab === 'about' && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400" />
+                                <motion.div 
+                                    className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"
+                                    layoutId="activeTab"
+                                />
                             )}
                         </button>
                     </div>
@@ -89,22 +96,32 @@ export default function Profile() {
             </div>
 
             {/* Profile Content */}
-            <div className="max-w-7xl mx-auto py-8">
-                {activeTab === 'videos' ? (
-                    <VideosSection 
-                        videos={videosList}
-                        loading={videosLoading}
-                        handleVideoDelete={handleVideoDelete}
-                    />
-                ) : (
-                    <AboutSection 
-                        user={user}
-                        userInfo={userInfo}
-                        setUser={setUser}
-                        updateProfile={updateProfile}
-                        totalVideos={totalVideos}
-                    />
-                )}
+            <div className="max-w-7xl mx-auto py-8 relative">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {activeTab === 'videos' ? (
+                            <VideosSection 
+                                videos={videosList}
+                                loading={videosLoading}
+                                handleVideoDelete={handleVideoDelete}
+                                canEdit={true}
+                            />
+                        ) : (
+                            <AboutSection 
+                                userInfo={userInfo}
+                                updateProfile={updateProfile}
+                                totalVideos={totalVideos}
+                                canEdit={true}
+                            />
+                        )}
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );

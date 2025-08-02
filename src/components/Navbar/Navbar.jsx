@@ -5,11 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { DropdownMenuButton } from '../DropdownMenu/DropdownMenuButton';
 import useUserStore from '../../store/useUserStore';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
+import { Search } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, clearUser } = useUserStore();
   const { isScrollingUp, scrollProgress } = useScrollDirection();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = async () => {
     try {
@@ -32,6 +35,13 @@ export default function Navbar() {
     navigate('/upload');
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   // Calculate transform value based on scroll progress
   const transformValue = isScrollingUp 
     ? `translateY(-${Math.max(0, scrollProgress - 100)}%)`
@@ -52,13 +62,23 @@ export default function Navbar() {
           />
         </div>
 
-        <div className="w-full md:flex-1 md:mx-6 md:max-w-md">
-          <input
-            type="text"
-            placeholder="Search videos..."
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-black-600 bg-gray-100 dark:bg-black-600 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+        <form onSubmit={handleSearch} className="w-full md:flex-1 md:mx-6 md:max-w-md relative">
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search videos..."
+              className="w-full px-4 py-2 pr-12 z-10 rounded-l-lg border border-gray-300 dark:border-black-400 bg-gray-100 dark:bg-black-700 text-black dark:text-white focus:outline-none focus:border-blue-400 dark:focus:border-blue-400"
+            />
+            <button 
+              type="submit"
+              className="right-1 py-2.5 px-4 border border-gray-300 bg-gray-100 text-gray-500 dark:bg-black-700 dark:border-black-400 border-l-0 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 rounded-r-xl"
+            >
+              <Search size={20} />
+            </button>
+          </div>
+        </form>
 
         {/* Right Side - Buttons */}
         <div className="w-full md:w-auto flex justify-end items-center gap-4">

@@ -1,7 +1,7 @@
 import React from 'react';
 import VideoCard from '../../../components/VideoCard/VideoCard';
 
-export default function VideosSection({ videos, loading, handleVideoDelete }) {
+export default function VideosSection({ videos, loading, handleVideoDelete, canEdit = true }) {
     return (
         <div>
             {loading ? (
@@ -13,9 +13,9 @@ export default function VideosSection({ videos, loading, handleVideoDelete }) {
                             key={video._id} 
                             video={video} 
                             showAvatar={false} 
-                            showStatus={true}
-                            isProfile={true}
-                            onDelete={handleVideoDelete}
+                            showStatus={canEdit}
+                            isProfile={canEdit}
+                            onDelete={canEdit ? handleVideoDelete : undefined}
                         />
                     ))}
                 </div>

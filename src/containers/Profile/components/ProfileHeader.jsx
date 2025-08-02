@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import { LoaderOne } from "@/components/ui/loader";
+import SubscribeButton from '@/components/SubscribeButton/SubscribeButton';
 
 export default function ProfileHeader({ user, userInfo, setUser, updateProfile, totalVideos, canEdit = true }) {
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -78,7 +79,7 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
                 )}
             </div>
 
-            <div className="w-full bg-white dark:bg-gray-900">
+            <div className="w-full bg-white dark:bg-black">
                 <div className="max-w-7xl mx-auto py-6">
                     <div className="flex flex-col md:flex-row md:items-start gap-6">
                         {/* Avatar with Upload */}
@@ -119,6 +120,14 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
                                         @{user.username} • {userInfo?.subscribersCount || 0} subscribers • {totalVideos} videos
                                     </p>
                                 </div>
+                                {!canEdit && (
+                                    <div className="mt-2">
+                                        <SubscribeButton 
+                                            channelId={user._id}
+                                            initialSubscriberCount={userInfo?.subscribersCount || 0}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -4,11 +4,11 @@ import { usePost } from '../../lib/api';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload as UploadIcon } from '@/components/animate-ui/icons/upload';
+import UploadStatusPopup from '@/components/ui/UploadStatusPopup';
 
 export default function Upload() {
     const navigate = useNavigate();
     const { mutate: uploadVideo, loading } = usePost();
-
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -19,6 +19,8 @@ export default function Upload() {
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
     const [formErrors, setFormErrors] = useState({});
+    const [uploadStatus, setUploadStatus] = useState(null); // 'pending', 'success', 'error'
+    const [showStatusPopup, setShowStatusPopup] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -64,10 +66,10 @@ export default function Upload() {
                 };
                 reader.readAsDataURL(file);
             } else if (type === 'videoFile') {
-                if (file.size > 100 * 1024 * 1024) { // 100MB limit
+                if (file.size > 500 * 1024 * 1024) { // 100MB limit
                     setFormErrors(prev => ({
                         ...prev,
-                        [type]: 'Video size should be less than 100MB'
+                        [type]: 'Video size should be less than 500MB'
                     }));
                     return;
                 }
@@ -151,21 +153,35 @@ export default function Upload() {
         formDataToSend.append('thumbnail', formData.thumbnail);
 
         try {
+            setUploadStatus('pending');
+            setShowStatusPopup(true);
+
             const response = await uploadVideo('/videos/publish-video', formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            if (response?.data?._id) {              
-                navigate(`/watch/${response.data._id}`);
+
+            if (response?.data?._id) {
+                setUploadStatus('success');
+                // Don't navigate immediately, let user see success state
+                setTimeout(() => {
+                    navigate(`/watch/${response.data._id}`);
+                }, 1500);
             }
         } catch (err) {
             console.error('Upload failed:', err);
+            setUploadStatus('error');
             setFormErrors(prev => ({
                 ...prev,
                 submit: err.message || 'Failed to upload video'
             }));
         }
+    };
+
+    const handleClosePopup = () => {
+        setShowStatusPopup(false);
+        setUploadStatus(null);
     };
 
     return (
@@ -180,9 +196,9 @@ export default function Upload() {
                         <div className="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-black-700">
                             {videoPreview ? (
                                 <div className="aspect-video">
-                                    <video
-                                        src={videoPreview}
-                                        controls
+                                <video
+                                    src={videoPreview}
+                                    controls
                                         controlsList="nodownload"
                                         className="w-full h-full object-contain bg-black"
                                         onLoadedMetadata={(e) => {
@@ -211,7 +227,7 @@ export default function Upload() {
                                     className="aspect-video w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-black-600 transition-colors"
                                 >
                                     <UploadIcon size={48} className="text-gray-400 mb-2" />
-                                    <span className="text-gray-500">Upload Video (Max 100MB)</span>
+                                    <span className="text-gray-500">Upload Video (Max 500MB)</span>
                                     <span className="text-sm text-gray-400 mt-1">MP4, WebM, or Ogg</span>
                                 </label>
                             )}
@@ -309,12 +325,19 @@ export default function Upload() {
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || uploadStatus === 'pending'}
                         className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Uploading...' : 'Upload Video'}
+                        Upload Video
                     </button>
                 </form>
+
+                {/* Upload Status Popup */}
+                <UploadStatusPopup 
+                    isOpen={showStatusPopup}
+                    status={uploadStatus}
+                    onClose={handleClosePopup}
+                />
             </div>
         </div>
     );
