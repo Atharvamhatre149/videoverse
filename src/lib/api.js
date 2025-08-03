@@ -6,6 +6,13 @@ const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   timeout: 20000,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  // Ensure cookies are sent in cross-origin requests
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
 const videoUploadConfig = {
