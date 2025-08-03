@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/animate-ui/radix/dropdown-menu';
 import { MoreVertical, Edit, Trash2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 dayjs.extend(relativeTime);
 

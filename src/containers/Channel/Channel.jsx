@@ -4,7 +4,7 @@ import { useFetch } from '../../lib/api';
 import ProfileHeader from '../Profile/components/ProfileHeader';
 import AboutSection from '../Profile/components/AboutSection';
 import VideosSection from '../Profile/components/VideosSection';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Channel() {
     const { channelId } = useParams();

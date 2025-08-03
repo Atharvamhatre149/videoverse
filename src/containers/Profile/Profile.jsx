@@ -4,7 +4,7 @@ import useUserStore from '../../store/useUserStore';
 import ProfileHeader from './components/ProfileHeader';
 import AboutSection from './components/AboutSection';
 import VideosSection from './components/VideosSection';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Profile() {
     const [activeTab, setActiveTab] = useState('videos');

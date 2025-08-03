@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 export default function UploadStatusPopup({ isOpen, status, onClose }) {

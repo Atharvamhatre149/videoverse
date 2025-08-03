@@ -1,7 +1,7 @@
 "use client";;
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { useMotionTemplate, useMotionValue, motion } from "motion/react";
+import { useMotionTemplate, useMotionValue, motion } from "framer-motion";
 
 const Input = React.forwardRef(({ className, type, ...props }, ref) => {
   const radius = 100; // change this to increase the rdaius of the hover effect

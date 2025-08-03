@@ -1,6 +1,6 @@
 'use client';;
 import * as React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 import { getVariants, useAnimateIconContext, IconWrapper } from '@/components/animate-ui/icons/icon';
 
@@ -13,9 +13,9 @@ const animations = {
       },
       animate: {
         y: -2,
-        transition: { duration: 0.3, ease: 'easeInOut' },
+        transition: { duration: 0.3, ease: 'easeInOut' },   
       },
-    },
+    },    
 
     path1: {},
     path2: {},

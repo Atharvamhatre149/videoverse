@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 import { Check, ChevronRight, Circle } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 import {
