@@ -1,7 +1,12 @@
 import VideoCard from '@/components/VideoCard/VideoCard';
 import { useInfiniteVideos } from '../../lib/api';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export default function Home() {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('query') || '';
+
   const { 
     videos, 
     loading, 
@@ -10,7 +15,11 @@ export default function Home() {
     hasMore, 
     loadMore, 
     refresh 
-  } = useInfiniteVideos('/videos', 10);  
+  } = useInfiniteVideos(query!='' ? `/videos?query=${query}`: '/videos', 10);  
+
+  useEffect(() => {
+    refresh();
+  }, [query, refresh]);
   
   if (loading) {
     return (
@@ -39,7 +48,16 @@ export default function Home() {
   return (
     <div className="pt-16">
       <div className="p-4">
-          {/* Videos Grid */}
+        {/* Search Results Header */}
+        {query && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              Search results for "{query}"
+            </h2>
+          </div>
+        )}
+
+        {/* Videos Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((video) => (
             <VideoCard video={video} showStatus={false} key={video?._id}/>
@@ -70,8 +88,17 @@ export default function Home() {
         {!loading && videos.length === 0 && (
           <div className="text-center mt-16">
             <div className="text-gray-500">
-              <p className="text-xl mb-2">No videos found</p>
-              <p>Be the first to upload a video!</p>
+              {query ? (
+                <>
+                  <p className="text-xl mb-2">No videos found for "{query}"</p>
+                  <p>Try a different search term</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xl mb-2">No videos found</p>
+                  <p>Be the first to upload a video!</p>
+                </>
+              )}
             </div>
           </div>
         )}
