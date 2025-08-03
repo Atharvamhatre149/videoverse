@@ -42,7 +42,7 @@
     "tw-animate-css": "^1.3.2",
     "vite": "^6.3.5"
   },
-   "resolutions": {
-    "rollup": "npm:@rollup/wasm-node"
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }
