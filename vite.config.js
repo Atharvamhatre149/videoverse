@@ -2,6 +2,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import commonjs from '@rollup/plugin-commonjs';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
   plugins: [react()],
@@ -13,6 +15,12 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     rollupOptions: {
+      plugins: [
+        commonjs(),
+        nodeResolve({
+          preferBuiltins: true
+        })
+      ],
       output: {
         manualChunks: {
           'vendor': [
