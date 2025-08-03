@@ -17,31 +17,76 @@ export const AUTH_EVENTS = {
   UNAUTHORIZED: 'auth:unauthorized',
   REFRESH_FAILED: 'auth:refresh_failed'
 };
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const { clearUser } = useUserStore.getState();
+    const { clearUser, getUser } = useUserStore.getState();
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      originalRequest.url !== '/users/refresh-token' &&  
-      originalRequest.url !== '/users/login'
-    ) {
-      originalRequest._retry = true;
+    // Don't try to refresh if we're already trying to refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // If we're already refreshing, add this request to the queue
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return apiClient(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
 
-      try {
-        await apiClient.post('/users/refresh-token');
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        clearUser();
-        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
-        return Promise.reject(refreshError);
+      // Skip refresh token for these endpoints
+      const skipRefreshFor = [
+        '/users/refresh-token',
+        '/users/login',
+        '/users/logout'
+      ];
+
+      if (!skipRefreshFor.includes(originalRequest.url)) {
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          await apiClient.post('/users/refresh-token');
+          processQueue(null);
+          isRefreshing = false;
+          return apiClient(originalRequest);
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          isRefreshing = false;
+          
+          // Only clear user if we actually have a user stored
+          if (getUser()) {
+            clearUser();
+            window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
+          }
+          return Promise.reject(refreshError);
+        }
       }
     }
 
-    if (error.response?.status === 401) {
+    // Only dispatch unauthorized for non-auth related endpoints
+    if (error.response?.status === 401 && 
+        !['/users/refresh-token', '/users/login'].includes(originalRequest.url) && 
+        getUser()) {
       clearUser();
       window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
     }
