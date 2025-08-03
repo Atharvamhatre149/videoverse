@@ -2,6 +2,11 @@ import axios from 'axios';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useUserStore from '../store/useUserStore';
 
+// Debug function for cookies
+const logCookies = () => {
+  console.log('All Cookies:', document.cookie);
+};
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   timeout: 20000,
@@ -15,35 +20,38 @@ const apiClient = axios.create({
   xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
-const videoUploadConfig = {
-  timeout: 10 * 60 * 1000 
-};
+// Add request interceptor to log cookies
+apiClient.interceptors.request.use(
+  config => {
+    console.log('Request URL:', config.url);
+    logCookies();
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
-// Create custom event for auth navigation
-export const AUTH_EVENTS = {
-  UNAUTHORIZED: 'auth:unauthorized',
-  REFRESH_FAILED: 'auth:refresh_failed'
-};
-
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
-
+// Add response interceptor to check cookie setting
 apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => {
+    console.log('Response from:', response.config.url);
+    console.log('Response headers:', response.headers);
+    logCookies();
+    return response;
+  },
+  async error => {
     const originalRequest = error.config;
     const { clearUser, getUser } = useUserStore.getState();
+
+    // Log error details
+    console.error('API Error:', {
+      url: originalRequest?.url,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      headers: error.response?.headers,
+      cookies: document.cookie
+    });
 
     // Don't try to refresh if we're already trying to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -53,6 +61,7 @@ apiClient.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then(() => {
+            logCookies();
             return apiClient(originalRequest);
           })
           .catch(err => {
@@ -72,11 +81,24 @@ apiClient.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          await apiClient.post('/users/refresh-token');
+          const refreshResponse = await apiClient.post('/users/refresh-token');
+          console.log('Refresh token response:', refreshResponse.headers);
+          logCookies();
+          
           processQueue(null);
           isRefreshing = false;
+          
+          // Update the original request with new headers if needed
+          if (refreshResponse.headers['set-cookie']) {
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Cookie: document.cookie
+            };
+          }
+          
           return apiClient(originalRequest);
         } catch (refreshError) {
+          console.error('Refresh token error:', refreshError);
           processQueue(refreshError, null);
           isRefreshing = false;
           
@@ -101,6 +123,31 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
+const videoUploadConfig = {
+  timeout: 10 * 60 * 1000 
+};
+
+// Create custom event for auth navigation
+export const AUTH_EVENTS = {
+  UNAUTHORIZED: 'auth:unauthorized',
+  REFRESH_FAILED: 'auth:refresh_failed'
+};
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 
 // Basic HTTP methods

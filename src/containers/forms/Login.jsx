@@ -58,15 +58,35 @@ export default function Login() {
         }
 
         try {
+            console.log('Attempting login...');
             const response = await login('/users/login', formData);
+            console.log('Login response:', response);
+            console.log('Response headers:', response.headers);
+            console.log('Cookies after login:', document.cookie);
            
             if(response?.statusCode === 200) {
+                // Store user data
                 setUser(response.data?.user);
-                navigate("/");
+                
+                // Verify cookie presence
+                const hasCookie = document.cookie.includes('accessToken') || 
+                                document.cookie.includes('refreshToken');
+                console.log('Cookie presence:', hasCookie);
+                
+                // Add a small delay to ensure cookies are properly set
+                setTimeout(() => {
+                    console.log('Cookies before navigation:', document.cookie);
+                    navigate("/");
+                }, 100);
             }
 
         } catch (err) {
-            console.error('Login failed:', err);
+            console.error('Login failed:', {
+                error: err,
+                response: err.response,
+                headers: err.response?.headers,
+                cookies: document.cookie
+            });
         }
     };
 
