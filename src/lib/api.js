@@ -14,16 +14,17 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  },
-  // Ensure cookies are sent in cross-origin requests
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
+  }
 });
 
 // Add request interceptor to log cookies
 apiClient.interceptors.request.use(
   config => {
+    // Always ensure credentials are included
+    config.withCredentials = true;
+    
     console.log('Request URL:', config.url);
+    console.log('Request withCredentials:', config.withCredentials);
     logCookies();
     return config;
   },
@@ -37,6 +38,13 @@ apiClient.interceptors.response.use(
   response => {
     console.log('Response from:', response.config.url);
     console.log('Response headers:', response.headers);
+    
+    // Check for Set-Cookie header
+    const setCookieHeader = response.headers['set-cookie'];
+    if (setCookieHeader) {
+      console.log('Set-Cookie header received');
+    }
+    
     logCookies();
     return response;
   },
@@ -48,20 +56,15 @@ apiClient.interceptors.response.use(
     console.error('API Error:', {
       url: originalRequest?.url,
       status: error.response?.status,
-      statusText: error.response?.statusText,
-      headers: error.response?.headers,
-      cookies: document.cookie
+      statusText: error.response?.statusText
     });
 
-    // Don't try to refresh if we're already trying to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // If we're already refreshing, add this request to the queue
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then(() => {
-            logCookies();
             return apiClient(originalRequest);
           })
           .catch(err => {
@@ -69,7 +72,6 @@ apiClient.interceptors.response.use(
           });
       }
 
-      // Skip refresh token for these endpoints
       const skipRefreshFor = [
         '/users/refresh-token',
         '/users/login',
@@ -82,27 +84,13 @@ apiClient.interceptors.response.use(
 
         try {
           const refreshResponse = await apiClient.post('/users/refresh-token');
-          console.log('Refresh token response:', refreshResponse.headers);
-          logCookies();
-          
           processQueue(null);
           isRefreshing = false;
-          
-          // Update the original request with new headers if needed
-          if (refreshResponse.headers['set-cookie']) {
-            originalRequest.headers = {
-              ...originalRequest.headers,
-              Cookie: document.cookie
-            };
-          }
-          
           return apiClient(originalRequest);
         } catch (refreshError) {
-          console.error('Refresh token error:', refreshError);
           processQueue(refreshError, null);
           isRefreshing = false;
           
-          // Only clear user if we actually have a user stored
           if (getUser()) {
             clearUser();
             window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
@@ -112,7 +100,6 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Only dispatch unauthorized for non-auth related endpoints
     if (error.response?.status === 401 && 
         !['/users/refresh-token', '/users/login'].includes(originalRequest.url) && 
         getUser()) {
