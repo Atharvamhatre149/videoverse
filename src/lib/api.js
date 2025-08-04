@@ -13,28 +13,18 @@ const apiClient = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Access-Control-Allow-Credentials': 'true'
+    'Accept': 'application/json'
   },
-  // Ensure proper CORS handling
-  validateStatus: status => status >= 200 && status < 500
+  // Ensure cookies are sent in cross-origin requests
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
-// Add request interceptor to log cookies and handle credentials
+// Add request interceptor to log cookies
 apiClient.interceptors.request.use(
   config => {
-    // Ensure credentials are always included
-    config.withCredentials = true;
-    
-    // Log request details
-    console.log('Request Details:', {
-      url: config.url,
-      method: config.method,
-      withCredentials: config.withCredentials,
-      headers: config.headers,
-      cookies: document.cookie
-    });
-    
+    console.log('Request URL:', config.url);
+    logCookies();
     return config;
   },
   error => {
@@ -42,23 +32,12 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle cookies and authentication
+// Add response interceptor to check cookie setting
 apiClient.interceptors.response.use(
   response => {
-    // Log response details
-    console.log('Response Details:', {
-      url: response.config.url,
-      status: response.status,
-      headers: response.headers,
-      cookies: document.cookie
-    });
-
-    // Check for and log Set-Cookie headers
-    const setCookieHeader = response.headers['set-cookie'];
-    if (setCookieHeader) {
-      console.log('Set-Cookie header present:', setCookieHeader);
-    }
-
+    console.log('Response from:', response.config.url);
+    console.log('Response headers:', response.headers);
+    logCookies();
     return response;
   },
   async error => {
@@ -74,7 +53,9 @@ apiClient.interceptors.response.use(
       cookies: document.cookie
     });
 
+    // Don't try to refresh if we're already trying to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If we're already refreshing, add this request to the queue
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -88,6 +69,7 @@ apiClient.interceptors.response.use(
           });
       }
 
+      // Skip refresh token for these endpoints
       const skipRefreshFor = [
         '/users/refresh-token',
         '/users/login',
@@ -99,20 +81,19 @@ apiClient.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          console.log('Attempting token refresh...');
           const refreshResponse = await apiClient.post('/users/refresh-token');
-          console.log('Refresh token response:', {
-            status: refreshResponse.status,
-            headers: refreshResponse.headers,
-            cookies: document.cookie
-          });
+          console.log('Refresh token response:', refreshResponse.headers);
+          logCookies();
           
           processQueue(null);
           isRefreshing = false;
           
-          // Ensure cookies are properly set after refresh
+          // Update the original request with new headers if needed
           if (refreshResponse.headers['set-cookie']) {
-            console.log('New cookies received from refresh');
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Cookie: document.cookie
+            };
           }
           
           return apiClient(originalRequest);
@@ -121,6 +102,7 @@ apiClient.interceptors.response.use(
           processQueue(refreshError, null);
           isRefreshing = false;
           
+          // Only clear user if we actually have a user stored
           if (getUser()) {
             clearUser();
             window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
@@ -130,6 +112,7 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // Only dispatch unauthorized for non-auth related endpoints
     if (error.response?.status === 401 && 
         !['/users/refresh-token', '/users/login'].includes(originalRequest.url) && 
         getUser()) {

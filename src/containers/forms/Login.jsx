@@ -59,17 +59,10 @@ export default function Login() {
 
         try {
             console.log('Attempting login...');
-            
-            // Test cookie handling
-            document.cookie = "testCookie=test; path=/; SameSite=None; Secure";
-            console.log('Test cookie set, current cookies:', document.cookie);
-            
             const response = await login('/users/login', formData);
-            console.log('Login response:', {
-                status: response?.statusCode,
-                headers: response?.headers,
-                cookies: document.cookie
-            });
+            console.log('Login response:', response);
+            console.log('Response headers:', response.headers);
+            console.log('Cookies after login:', document.cookie);
            
             if(response?.statusCode === 200) {
                 // Store user data
@@ -78,17 +71,13 @@ export default function Login() {
                 // Verify cookie presence
                 const hasCookie = document.cookie.includes('accessToken') || 
                                 document.cookie.includes('refreshToken');
-                console.log('Auth cookie presence:', hasCookie);
+                console.log('Cookie presence:', hasCookie);
                 
                 // Add a small delay to ensure cookies are properly set
                 setTimeout(() => {
-                    console.log('Final cookie state:', {
-                        allCookies: document.cookie,
-                        hasTestCookie: document.cookie.includes('testCookie'),
-                        hasAuthCookie: document.cookie.includes('accessToken')
-                    });
+                    console.log('Cookies before navigation:', document.cookie);
                     navigate("/");
-                }, 500);
+                }, 100);
             }
 
         } catch (err) {
