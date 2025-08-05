@@ -2,11 +2,6 @@ import axios from 'axios';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useUserStore from '../store/useUserStore';
 
-// Debug function for cookies
-const logCookies = () => {
-  console.log('All Cookies:', document.cookie);
-};
-
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   timeout: 20000,
@@ -17,15 +12,10 @@ const apiClient = axios.create({
   }
 });
 
-// Add request interceptor to log cookies
+// Add request interceptor
 apiClient.interceptors.request.use(
   config => {
-    // Always ensure credentials are included
     config.withCredentials = true;
-    
-    console.log('Request URL:', config.url);
-    console.log('Request withCredentials:', config.withCredentials);
-    logCookies();
     return config;
   },
   error => {
@@ -33,31 +23,12 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Add response interceptor to check cookie setting
+// Add response interceptor
 apiClient.interceptors.response.use(
-  response => {
-    console.log('Response from:', response.config.url);
-    console.log('Response headers:', response.headers);
-    
-    // Check for Set-Cookie header
-    const setCookieHeader = response.headers['set-cookie'];
-    if (setCookieHeader) {
-      console.log('Set-Cookie header received');
-    }
-    
-    logCookies();
-    return response;
-  },
+  response => response,
   async error => {
     const originalRequest = error.config;
     const { clearUser, getUser } = useUserStore.getState();
-
-    // Log error details
-    console.error('API Error:', {
-      url: originalRequest?.url,
-      status: error.response?.status,
-      statusText: error.response?.statusText
-    });
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -111,12 +82,10 @@ apiClient.interceptors.response.use(
   }
 );
 
-
 const videoUploadConfig = {
   timeout: 10 * 60 * 1000 
 };
 
-// Create custom event for auth navigation
 export const AUTH_EVENTS = {
   UNAUTHORIZED: 'auth:unauthorized',
   REFRESH_FAILED: 'auth:refresh_failed'
@@ -136,12 +105,10 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-
 // Basic HTTP methods
 export const api = {
   get: (url, params = {}) => apiClient.get(url, { params }),
   post: (url, data, config = {}) => {
-    // Apply video upload timeout for video upload endpoint
     if (url.includes('/videos/publish-video')) {
       config = { ...config, ...videoUploadConfig };
     }
