@@ -46,7 +46,7 @@ export default function Profile() {
     }
 
     return (
-        <div className="pt-20 px-20">
+        <div className="pt-20 px-5 md:px-20">
             <ProfileHeader 
                 user={user}
                 userInfo={userInfo} 

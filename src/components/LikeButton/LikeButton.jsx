@@ -17,8 +17,7 @@ export default function LikeButton({ videoId, initialLikeCount = 0}) {
     videoId ? `/likes/v/${videoId}` : null
   );
   
-   const userLike = userVideoLikeData?.data?.like;
-
+  const userLike = userVideoLikeData?.data?.like;
 
   useEffect(() => {
     setLikeCount(initialLikeCount);
@@ -45,21 +44,17 @@ export default function LikeButton({ videoId, initialLikeCount = 0}) {
     }
   };
 
- return (
+  return (
     <div 
       onClick={handleLike}
-      className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-black-600 dark:hover:bg-black-500 transition-colors"
+      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-black-600 dark:hover:bg-black-500 transition-colors text-sm md:text-base cursor-pointer"
     >
       <IconButton
-      icon={Heart}
-      active={isLiked}
-    />
-      {/* <Heart 
-        size={24} 
-        animateOnHover={!isLiked}
-        className={isLiked ? 'text-red-500 fill-red-500' : 'text-gray-500'}
-      /> */}
-      <span className="font-medium">{likeCount}</span>
+        icon={Heart}
+        active={isLiked}
+        className="size-4 md:size-5"
+      />
+      <span className="font-medium min-w-[1.5rem] md:min-w-[2rem] text-center">{likeCount}</span>
     </div>
   );
 } 

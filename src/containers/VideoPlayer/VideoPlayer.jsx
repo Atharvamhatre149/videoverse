@@ -118,7 +118,7 @@ export default function VideoPlayer() {
 
           {/* Video Details */}
           <div className="mt-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{video.title}</h1>
+            <h1 className="md:text-2xl font-bold text-gray-900 dark:text-white mb-2 text-xl">{video.title}</h1>
 
             {/* Channel Info and Buttons */}
             <div className="flex items-center justify-between mb-4">
@@ -126,7 +126,7 @@ export default function VideoPlayer() {
                 <img 
                   src={video.owner?.avatar?.url} 
                   alt={video.owner?.username || 'Channel avatar'}
-                  className="w-12 h-12 rounded-full object-cover bg-gray-300"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover bg-gray-300"
                   onError={(e) => {
                     e.target.src = 'https://via.placeholder.com/48x48?text=' + (video.owner?.username?.charAt(0).toUpperCase() || 'U');
                   }}
@@ -138,7 +138,7 @@ export default function VideoPlayer() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <SubscribeButton 
                   channelId={video.owner?._id}
                   onSubscriptionChange={handleSubscriptionChange}

@@ -46,7 +46,7 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
     return (
         <>
             {/* Cover Image Section */}
-            <div className="w-full rounded-2xl overflow-hidden aspect-[16/3] max-h-[400px] bg-gray-200 dark:bg-gray-700 relative group">
+            <div className="w-full rounded-2xl overflow-hidden aspect-[16/5] md:aspect-[16/3] max-h-[400px] bg-gray-200 dark:bg-gray-700 relative group">
                 {userInfo?.coverImage ? (
                     <img
                         src={userInfo?.coverImage?.url}
@@ -81,7 +81,7 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
 
             <div className="w-full bg-white dark:bg-black">
                 <div className="max-w-7xl mx-auto py-6">
-                    <div className="flex flex-col md:flex-row md:items-start gap-6">
+                    <div className="flex flex-row md:flex-row md:items-start gap-6">
                         {/* Avatar with Upload */}
                         <div className="relative group">
                             <img
@@ -113,12 +113,18 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
                         
                         {/* Profile Info */}
                         <div className="flex flex-col">
-                            <div className="flex flex-col justify-between gap-6">
+                            <div className="flex flex-col justify-between gap-4 md:gap-6">
                                 <div>
-                                    <h1 className="text-2xl md:text-4xl font-bold mb-1">{user.fullname}</h1>
-                                    <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-                                        @{user.username} • {userInfo?.subscribersCount || 0} subscribers • {totalVideos} videos
-                                    </p>
+                                    <h1 className="text-2xl mt-2 md:mt-0 md:text-4xl font-bold mb-1">{user.fullname}</h1>
+                                    <div className="text-gray-600 dark:text-gray-400 text-sm md:text-base flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                                        <span>@{user.username}</span>
+                                        <div className="hidden md:block">•</div>
+                                        <div className="flex items-center gap-2">
+                                            <span>{userInfo?.subscribersCount || 0} subscribers</span>
+                                            <span>•</span>
+                                            <span>{totalVideos} videos</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 {!canEdit && (
                                     <div className="mt-2">
