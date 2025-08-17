@@ -30,55 +30,60 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
     const { clearUser, getUser } = useUserStore.getState();
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            return apiClient(originalRequest);
-          })
-          .catch(err => {
-            return Promise.reject(err);
-          });
+    // Only handle 401 errors
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    const skipRefreshFor = ['/users/refresh-token', '/users/login', '/users/logout'];
+    const requestPath = originalRequest.url.split('?')[0];
+    
+    if (skipRefreshFor.some(path => requestPath.endsWith(path))) {
+      if (getUser()) {
+        clearUser();
+        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
       }
+      return Promise.reject(error);
+    }
 
-      const skipRefreshFor = [
-        '/users/refresh-token',
-        '/users/login',
-        '/users/logout'
-      ];
+    // If already retried, reject
+    if (originalRequest._retry) {
+      if (getUser()) {
+        clearUser();
+        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
+      }
+      return Promise.reject(error);
+    }
 
-      if (!skipRefreshFor.includes(originalRequest.url)) {
-        originalRequest._retry = true;
-        isRefreshing = true;
+    // Mark this request as retried
+    originalRequest._retry = true;
 
-        try {
-          const refreshResponse = await apiClient.post('/users/refresh-token');
-          processQueue(null);
-          isRefreshing = false;
-          return apiClient(originalRequest);
-        } catch (refreshError) {
-          processQueue(refreshError, null);
-          isRefreshing = false;
-          
-          if (getUser()) {
-            clearUser();
-            window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
-          }
-          return Promise.reject(refreshError);
-        }
+    // If a refresh is already in progress, wait for it
+    if (isRefreshing) {
+      try {
+        await refreshPromise;
+        return apiClient(originalRequest);
+      } catch (err) {
+        return Promise.reject(err);
       }
     }
 
-    if (error.response?.status === 401 && 
-        !['/users/refresh-token', '/users/login'].includes(originalRequest.url) && 
-        getUser()) {
-      clearUser();
-      window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
+    // Start new refresh
+    try {
+      isRefreshing = true;
+      refreshPromise = apiClient.post('/users/refresh-token');
+      await refreshPromise;
+      return apiClient(originalRequest);
+    } catch (refreshError) {
+      if (getUser()) {
+        clearUser();
+        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.REFRESH_FAILED));
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
     }
-
-    return Promise.reject(error);
   }
 );
 
@@ -91,19 +96,9 @@ export const AUTH_EVENTS = {
   REFRESH_FAILED: 'auth:refresh_failed'
 };
 
+// Refresh token state
 let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
+let refreshPromise = null;
 
 // Basic HTTP methods
 export const api = {
