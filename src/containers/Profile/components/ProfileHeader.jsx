@@ -6,6 +6,12 @@ import SubscribeButton from '@/components/SubscribeButton/SubscribeButton';
 export default function ProfileHeader({ user, userInfo, setUser, updateProfile, totalVideos, canEdit = true }) {
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [isUploadingCover, setIsUploadingCover] = useState(false);
+    const [coverImage, setCoverImage] = useState("");
+
+
+    useState(()=>{
+        setCoverImage(userInfo?.coverImage?.url);
+    },[userInfo])
 
     const handleImageUpload = async (type, e) => {
         const file = e.target.files[0];
@@ -34,6 +40,9 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
                         avatar: response.data.avatar
                     });
                 }
+                else{
+                    setCoverImage(response.data?.coverImage?.url)
+                }
             }
         } catch (error) {
             console.error('Error uploading image:', error);
@@ -49,7 +58,7 @@ export default function ProfileHeader({ user, userInfo, setUser, updateProfile, 
             <div className="w-full rounded-2xl overflow-hidden aspect-[16/5] md:aspect-[16/3] max-h-[400px] bg-gray-200 dark:bg-gray-700 relative group">
                 {userInfo?.coverImage ? (
                     <img
-                        src={userInfo?.coverImage?.url}
+                        src={coverImage}
                         alt="Cover"
                         className="w-full h-full object-cover rounded-2xl"
                         onError={(e) => {
