@@ -103,14 +103,9 @@ let refreshPromise = null;
 // Basic HTTP methods
 export const api = {
   get: (url, params = {}) => apiClient.get(url, { params }),
-  post: (url, data, config = {}) => {
-    if (url.includes('/videos/publish-video')) {
-      config = { ...config, ...videoUploadConfig };
-    }
-    return apiClient.post(url, data, config);
-  },
+  post: (url, data, config = {}) => apiClient.post(url, data, config),
   put: (url, data) => apiClient.put(url, data),
-  patch: (url, data) => apiClient.patch(url, data),
+  patch: (url, data, config = {}) =>  apiClient.patch(url, data, config),
   delete: (url) => apiClient.delete(url),
 };
 
@@ -172,12 +167,12 @@ export const useMutation = (method = 'post') => {
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
 
-  const mutate = useCallback(async (url, payload) => {
+  const mutate = useCallback(async (url, payload, config) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await api[method](url, payload);
+      const response = await api[method](url, payload, config);
       setData(response.data);
 
       return response.data;

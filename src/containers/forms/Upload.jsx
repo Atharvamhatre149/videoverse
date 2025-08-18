@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { usePost } from '../../lib/api';
+import { useNavigate, useParams } from 'react-router-dom';
+import { usePost, usePatch, api } from '../../lib/api';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload as UploadIcon } from '@/components/animate-ui/icons/upload';
@@ -8,7 +8,11 @@ import UploadStatusPopup from '@/components/ui/UploadStatusPopup';
 
 export default function Upload() {
     const navigate = useNavigate();
-    const { mutate: uploadVideo, loading } = usePost();
+    const { videoId } = useParams();
+    const { mutate: uploadVideo, loading: uploadLoading } = usePost();
+    const { mutate: updateVideo, loading: updateLoading } = usePatch();
+    const [isEditMode, setIsEditMode] = useState(false);
+    const loading = uploadLoading || updateLoading;
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -108,13 +112,43 @@ export default function Upload() {
     };
 
     // Cleanup function for video preview URL
+    // Fetch video data in edit mode
+    useEffect(() => {
+        const fetchVideoData = async () => {
+            if (videoId) {
+                try {
+                    const response = await api.get(`/videos/${videoId}`);
+                    const video = response.data.data;
+                    
+                    setIsEditMode(true);
+                    setFormData(prev => ({
+                        ...prev,
+                        title: video.title,
+                        description: video.description
+                    }));
+                    
+                    // Set video preview
+                    setVideoPreview(video.videoFile);
+                    
+                    // Set thumbnail preview
+                    setThumbnailPreview(video.thumbnail);
+                } catch (error) {
+                    navigate('/404');
+                }
+            }
+        };
+
+        fetchVideoData();
+    }, [videoId, navigate]);
+
+    // Cleanup video preview URL
     useEffect(() => {
         return () => {
-            if (videoPreview) {
+            if (videoPreview && !videoPreview.startsWith('http')) {
                 URL.revokeObjectURL(videoPreview);
             }
         };
-    }, []);
+    }, [videoPreview]);
 
     const validateForm = () => {
         const errors = {};
@@ -127,11 +161,11 @@ export default function Upload() {
             errors.description = 'Description is required';
         }
         
-        if (!formData.videoFile) {
+        if (!isEditMode && !formData.videoFile) {
             errors.videoFile = 'Video file is required';
         }
         
-        if (!formData.thumbnail) {
+        if (!isEditMode && !formData.thumbnail) {
             errors.thumbnail = 'Thumbnail is required';
         }
         
@@ -146,21 +180,41 @@ export default function Upload() {
             return;
         }
 
-        const formDataToSend = new FormData();
-        formDataToSend.append('title', formData.title);
-        formDataToSend.append('description', formData.description);
-        formDataToSend.append('videoFile', formData.videoFile);
-        formDataToSend.append('thumbnail', formData.thumbnail);
-
-        try {
+                try {
             setUploadStatus('pending');
             setShowStatusPopup(true);
 
-            const response = await uploadVideo('/videos/publish-video', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            const formDataToSend = new FormData();
+            
+            // Always append basic data
+            formDataToSend.append('title', formData.title);
+            formDataToSend.append('description', formData.description);
+            
+            // Only append files if they exist and are File objects
+            if (formData.videoFile instanceof File) {
+                formDataToSend.append('videoFile', formData.videoFile);
+            }
+            
+            if (formData.thumbnail instanceof File) {
+                formDataToSend.append('thumbnail', formData.thumbnail);
+            }
+
+            let response;
+            if (isEditMode) {
+                response = await updateVideo(`/videos/${videoId}`, formDataToSend, {
+                    timeout: 10 * 60 * 1000,
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            } else {
+                response = await uploadVideo('/videos/publish-video', formDataToSend, {
+                    timeout: 10 * 60 * 1000,
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
 
             if (response?.data?._id) {
                 setUploadStatus('success');
@@ -170,11 +224,10 @@ export default function Upload() {
                 }, 1500);
             }
         } catch (err) {
-            console.error('Upload failed:', err);
             setUploadStatus('error');
             setFormErrors(prev => ({
                 ...prev,
-                submit: err.message || 'Failed to upload video'
+                submit: err.message || `Failed to ${isEditMode ? 'update' : 'upload'} video`
             }));
         }
     };
@@ -187,7 +240,7 @@ export default function Upload() {
     return (
         <div className="min-h-screen pt-20 pb-10">
             <div className="max-w-3xl mx-auto px-4">
-                <h1 className="text-3xl font-bold text-center mb-8">Upload Video</h1>
+                <h1 className="text-3xl font-bold text-center mb-8">{isEditMode ? 'Edit Video' : 'Upload Video'}</h1>
                 
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     {/* Video Upload */}
@@ -328,7 +381,7 @@ export default function Upload() {
                         disabled={loading || uploadStatus === 'pending'}
                         className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Upload Video
+                        {isEditMode ? 'Save Changes' : 'Upload Video'}
                     </button>
                 </form>
 

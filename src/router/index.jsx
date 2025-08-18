@@ -36,6 +36,10 @@ export const router = createBrowserRouter([
                 element: <Upload />
             },
             {
+                path: 'edit/:videoId',
+                element: <Upload />
+            },
+            {
                 path: 'you',
                 element: <You />
             },

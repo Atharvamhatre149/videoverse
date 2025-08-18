@@ -52,7 +52,7 @@ export default function VideoCard({
 
     const handleEdit = (e) => {
         e.stopPropagation();
-        navigate(`/edit-video/${video._id}`);
+        navigate(`/edit/${video._id}`);
     };
 
     const handleDelete = async (e) => {
