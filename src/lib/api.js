@@ -6,10 +6,6 @@ const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '',
   timeout: 20000,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
 });
 
 // Add request interceptor
@@ -87,9 +83,7 @@ apiClient.interceptors.response.use(
   }
 );
 
-const videoUploadConfig = {
-  timeout: 10 * 60 * 1000 
-};
+
 
 export const AUTH_EVENTS = {
   UNAUTHORIZED: 'auth:unauthorized',

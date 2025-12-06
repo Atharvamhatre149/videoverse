@@ -19,6 +19,12 @@ export default function Upload() {
         videoFile: null,
         thumbnail: null
     });
+
+    const fileUploadConfig = { timeout: 10 * 60 * 1000,
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        }
     
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
@@ -133,7 +139,7 @@ export default function Upload() {
                     // Set thumbnail preview
                     setThumbnailPreview(video.thumbnail);
                 } catch (error) {
-                    navigate('/404');
+                    navigate('/');
                 }
             }
         };
@@ -201,19 +207,9 @@ export default function Upload() {
 
             let response;
             if (isEditMode) {
-                response = await updateVideo(`/videos/${videoId}`, formDataToSend, {
-                    timeout: 10 * 60 * 1000,
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
+                response = await updateVideo(`/videos/${videoId}`, formDataToSend,fileUploadConfig );
             } else {
-                response = await uploadVideo('/videos/publish-video', formDataToSend, {
-                    timeout: 10 * 60 * 1000,
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
+                response = await uploadVideo('/videos/publish-video', formDataToSend, fileUploadConfig);
             }
 
             if (response?.data?._id) {
