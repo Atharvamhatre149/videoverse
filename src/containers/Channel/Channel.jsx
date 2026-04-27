@@ -5,6 +5,7 @@ import ProfileHeader from '../Profile/components/ProfileHeader';
 import AboutSection from '../Profile/components/AboutSection';
 import VideosSection from '../Profile/components/VideosSection';
 import { motion, AnimatePresence } from 'motion/react';
+//temp
 
 export default function Channel() {
     const { channelId } = useParams();
